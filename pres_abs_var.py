@@ -50,7 +50,7 @@ def BlastAndParse(blastdb, genome, queryfile, E_VALUE_THRESH, PERC_IDENTITY_THRE
 					if "_" in return_contig_nr:
 						return_contig_nr = return_contig_nr.split("_")[0]
 				if not effector2scoresForThisGenome.has_key(blast_record.query): effector2scoresForThisGenome[blast_record.query]=[]
-				if (hsp.expect < E_VALUE_THRESH) and (return_perc_id >= v):
+				if (hsp.expect < E_VALUE_THRESH) and (return_perc_id >= PERC_IDENTITY_THRESH):
 					if output_contigs in 'no': 				#'', 'no' or 'n'
 						effector2scoresForThisGenome[blast_record.query].append(return_perc_id)
 					elif output_contigs in 'yes':
