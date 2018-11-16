@@ -24,7 +24,7 @@ class mimp_finderApp():
 
 			if 'fasta' in file:
 				print("\\ Processing "+str(file))
-				bashCommand = "tirmite --alnFile "+seed_mimp+" --alnFormat fasta --stableReps 2 --outdir tirmite_mimps -v --maxeval 20 --maxdist 10000 --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0])
+				bashCommand = "tirmite --alnFile "+seed_mimp+" --alnFormat fasta --stableReps 2 --outdir tirmite_mimps -v --maxeval 1 --maxdist 10000 --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0] +" --mincov .9")
 				subprocess.check_output(['bash','-c', bashCommand])
 
 			
