@@ -15,6 +15,9 @@ Signalp
 
 http://www.cbs.dtu.dk/services/SignalP/
 
+
+
+
 Example: 
 
 mimp_finder:
@@ -30,6 +33,10 @@ Mimp finder finds TIR elements in a genome and records regions up/down stream of
 -s seeder mimps for TIRmite. This is a file containing known, example mimps for TIRmite to base its search on
 
 -d distance of the region up/downstream  of the mimp that is recorded that is recorded. This is the region that will be searched for effectors / genes
+
+
+
+
 
 
 gene_finder:
@@ -49,6 +56,10 @@ Gene finder finds genes or effectors using given sequence file. Genes must be en
 -s directory of the signalp file
 
 -sp minimum score that will result in a positive prediction of a signal peptide. Defaults to .45
+
+
+
+
 
 
 cluster:
@@ -80,6 +91,10 @@ Cluster takes sequences and groups them together based on coverage and identity 
 -n max percentage of Ns that are allowed in a sequence file. Defaults to 0
 
 
+
+
+
+
 extract:
 
 Extract allows the user to submit the header of a sequence of interest and retrieve all of the sequences of all other genes it is clustered with.
@@ -89,6 +104,10 @@ Extract allows the user to submit the header of a sequence of interest and retri
 -d the file containing all of the preclustered genes. Ex the file all_putative_effectors_concatenated.fasta generated from the mimp finder program.
 
 -x a file containing all genes you wish to examine
+
+
+
+
 
 
 pres_abs_var:
