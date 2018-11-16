@@ -10,18 +10,18 @@ from Bio.Alphabet import IUPAC
 def Translator(infile, datahandler2):
 	datahandler_list2 = []
 	for seq_record in SeqIO.parse(infile, 'fasta', IUPAC.ambiguous_dna):
-					#(i=0 - i=1 - i=2) 
-		s = seq_record.seq    #checks each open reading frame of each gene in the fasta file
-		while len(s)%3 != 0: # add N to the end of the region if not devisable by 3
-			s += 'N'
-		translated_record = SeqRecord(seq=s.translate(table=1), id=seq_record.id, description=seq_record.description)
-		datahandler_list2.append(translated_record)
+		for i in range(3): 				#(i=0 - i=1 - i=2)
+			s = seq_record.seq[i:]   #checks each open reading frame of each gene in the fasta file
+			while len(s)%3 != 0: # add N to the end of the region if not devisable by 3
+				s += 'N'
+			translated_record = SeqRecord(seq=s.translate(table=1), id=seq_record.id, description=seq_record.description+' frame='+str(i))
+			datahandler_list2.append(translated_record)
 
-		s = seq_record.seq[::-1]    #checks each open reading frame of each gene in the fasta file
-		while len(s)%3 != 0: # add N to the end of the region if not devisable by 3
-			s += 'N'
-		translated_record = SeqRecord(seq=s.translate(table=1), id=seq_record.id+"_reverse_compliment", description=seq_record.description)
-		datahandler_list2.append(translated_record)
+			s = s.reverse_complement()   #checks the reverse compliment of the open reading frame of each gene in the fasta file
+			while len(s)%3 != 0: # add N to the end of the region if not devisable by 3
+				s += 'N'
+			translated_record = SeqRecord(seq=s.translate(table=1), id=seq_record.id+"_reverse_compliment", description=seq_record.description+' frame='+str(i))
+			datahandler_list2.append(translated_record)
 
 	SeqIO.write(datahandler_list2, datahandler2, 'fasta')
 	print '-'*20
@@ -35,29 +35,38 @@ def OrfFinder(datahandler2, min_prot_len, datahandler3, orfs, max_prot_len, max_
 
 		MetStop(seq_record.seq, seq_record.id, genomic_region_up, genomic_region_down, min_prot_len, datahandler3, orfs, max_prot_len, max_d2m)
 	SeqIO.write(orfs, datahandler3, 'fasta')
+	print int(1/0)
+
 	print '// Wrote %s protein sequences with a mimp IR motif in their promoter and an ORF >%i and <%i aa to %s' % (len(orfs), min_prot_len, max_prot_len, datahandler3)
 	print '-'*20
 
 def MetStop(sequence, ident, genomic_region_up, genomic_region_down, min_prot_len, datahandler3, orfs, max_prot_len, max_d2m): #frame removec
 	
-	met_location = sequence.find('M')
-	stop_location = met_location+1
-	while met_location >= 0 and stop_location>=0:
-		stop_location = sequence.find('*', met_location+1)
-		prot = sequence[met_location:stop_location+1] 	#+1 = add STOP
-		dist_to_mimp = (met_location*3)		 	#genomic distance
-		dist_to_mimp_fromstop = (stop_location*3)
-		if len(prot) > min_prot_len:
-			endpos = genomic_region_down-dist_to_mimp
 
-			startpos = genomic_region_down-dist_to_mimp_fromstop
-			orf_record = SeqRecord(seq=prot.strip('*'), id=str(ident).replace('downstream', 'ds').replace('upstream', 'us') +"|"+str(startpos)+'-'+str(endpos)+'|d2m:'+str(dist_to_mimp)+'|len:'+str(len(prot)-1), description='')
-			if len(prot) < int(max_prot_len):
-				if int(dist_to_mimp) < max_d2m:
+	met_location = [i for i, a in enumerate(sequence) if a == 'M']
+
+	x=0
+	while x<len(met_location):
+		if met_location[x] >= 0:# and stop_location>=0:
+			stop_location = sequence.find('*', met_location[x])
+			#print stop_location, "stop"
+			if stop_location>0:
+				prot = sequence[met_location[x]:stop_location+1] 	#+1 = add STOP
+				dist_to_gene_fromstop = (stop_location*3)
+			else:
+				prot = sequence[met_location[x]:]
+				dist_to_gene_fromstop = (len(prot)*3) 
+			dist_to_gene = (met_location[x]*3)		 	#genomic distance
+
+			if len(prot) > min_prot_len:
+				startpos = genomic_region_up+dist_to_gene
+				endpos = genomic_region_up+dist_to_gene_fromstop
+				orf_record = SeqRecord(seq=prot.strip('*'), id=str(ident).replace('downstream', 'ds').replace('upstream', 'us') +"|"+str(startpos)+'-'+str(endpos)+'|d2m:'+str(dist_to_gene)+'|len:'+str(len(prot)-1), description='')
+				if len(prot) < int(max_prot_len):
 					orfs.append(orf_record)
 
-		met_location = sequence.find('M', met_location+1)
-
+		x+=1
+	
 
 
 #####important
