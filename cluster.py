@@ -67,7 +67,7 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 	cmnd = BLASTbindir+'/makeblastdb -dbtype nucl -in '+infile+' -out '+database_store
 	print "---BLASTDB---\n", cmnd, os.system(cmnd), "---\n" #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
 	blastoutfilename = infiledir+infile.split('/')[-1].split('.fa')[0]+'.vs.'+infile.split('/')[-1].split('.fa')[0]+'.blastout'
-	cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)
+	cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -dust no -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)
 	#										0	  1	    2	   3	  4 		5	    6	   7		8	  9 	10	 11	   12	 13
 
 	effector2homologs = {}
@@ -222,6 +222,7 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 						if q_new== False and s_new==False:
 							x==len(low_i_high_c)
 					x=0
+					'''
 					while x<len(high_i_high_c):
 						if tabs[0]  in high_i_high_c[x]:
 							q_new=False
@@ -240,7 +241,7 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 						x+=1
 						if q_new== False and s_new==False:
 							x==len(high_i_low_c)
-
+					'''
 					if q_new==True:
 						if tabs[0] not in singletons:
 							singletons.append(tabs[0])
@@ -335,7 +336,7 @@ class clusterApp():
 		self.verbose = False
 
 
-	def start(self, infile, blastdatabasedir, BLASTbindir, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.25, low_identity=50, LENGTH_THRESH=.9, n_allowed=0, check_n=True): #, all_data="False"):
+	def start(self, infile, blastdatabasedir, BLASTbindir, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, LENGTH_THRESH=.9, n_allowed=0, check_n=True): #, all_data="False"):
 
 		infile_filename = infile.split('/')[-1]
 
