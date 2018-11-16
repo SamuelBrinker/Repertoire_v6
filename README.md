@@ -80,3 +80,34 @@ Cluster takes sequences and groups them together based on coverage and identity 
 -n max percentage of Ns that are allowed in a sequence file. Defaults to 0
 
 
+extract:
+
+Extract allows the user to submit the header of a sequence of interest and retrieve all of the sequences of all other genes it is clustered with.
+
+-e the expanded_clusters.txt file generated from cluster
+
+-d the file containing all of the preclustered genes. Ex the file all_putative_effectors_concatenated.fasta generated from the mimp finder program.
+
+-x a file containing all genes you wish to examine
+
+
+pres_abs_var:
+
+Presence absence variation takes a fasta file containing genes of interest and directory full of genomes of interest. It will search for the presence of each of genes inside everyone of the genomes and form table of the results. Black indicates the presence of a given gene.
+
+-q a fasta file containing all genes of interest. For example, the high_quality_clustered_genes.fasta file from cluster
+
+-g a folder containing all genomes to be examined
+
+-bd a folder where all blasted files can be stored to
+
+-b BLASTbindir (i.e. /usr/local/bin)
+
+-o output directory
+
+-p the minimum percent of shared identity between two sequences needed for the two to be examined. Defaults to 80
+
+-d Build a blast db of the genome, yes/no. Defaults to yes
+
+-r path to R script
+
