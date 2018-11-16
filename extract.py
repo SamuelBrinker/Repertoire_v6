@@ -26,34 +26,50 @@ class extractApp():
 		with open(expanded, 'r') as file:
 			all_exapnded =file.readlines()
 			file.close()
+
+		#print all_exapnded[0:3]
 		clustered_headers=[]
-		cluster=[]
+		clusters=[]
 		record=False
 		y=0
-
+		t=True
 		for header in examin_headers:
+			
 			for line in all_exapnded:
+				#if t==True:
+				#	print 'x'
 				if record==True:
 					if '--------' in line:
 						
 						record=False
-						clustered_headers.append(cluster)
+						clustered_headers.append(clusters)
 
-						cluster=[]
+						clusters=[]
 					else:
-						cluster.append(line)
+						clusters.append(line)
 
 				if ' 'in header:
-					if '-'+header.split(' ')[0] in line:
-						cluster.append(header.split(' ')[0])
+					#if t==True:
+					#	t=False
+					#	print '-'+header.split(' ')[0].replace('\n','')
+
+					if '-'+header.split(' ')[0].replace('\n','') in line:
+						clusters.append(header.split(' ')[0])
 						record=True
 				else:
-					if '-'+header.replace('\n','') in line:
-						cluster.append(header)
-						record=True
-		clustered_headers.append(cluster)	
+					#if t==True:
+					#	t=False
+					#	print '-'+header.split(' ')[0].replace('\n','')
 
-		#print len(clustered_headers)
+					if '-'+header.replace('\n','')  in line:
+						clusters.append(header.replace("signalal","signal"))
+						#print "test"
+						record=True
+		clustered_headers.append(clusters)	
+
+		print len(clustered_headers)
+
+
 		with open(database,'r') as file:
 			all_genes=file.readlines()
 			file.close()
@@ -67,7 +83,7 @@ class extractApp():
 		all_genes=[]
 		for gene in to_edit:
 			if ' 'in gene:
-				all_genes.append(gene.split(' ')[0])
+				all_genes.append(gene.split(' ')[0]) #turn this into a \n replace as well as a " " replace with _. problem is signal peptide spelled signalal
 			else:
 				all_genes.append(gene)
 
@@ -117,10 +133,11 @@ class extractApp():
 							record=True
 					x+=1
 				z+=1
-			with open(extracted_path+cluster[0].replace('\n','')+'_extracted.fasta','w') as file:
-				file.write(to_write)
-				file.close
-			
+			if cluster != []:
+				with open(extracted_path+cluster[0].replace('\n','')+'_extracted.fasta','w') as file:
+					file.write(to_write)
+					file.close
+				
 	
 		
 
