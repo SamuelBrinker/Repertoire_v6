@@ -35,7 +35,7 @@ def OrfFinder(datahandler2, min_prot_len, datahandler3, orfs, max_prot_len, max_
 
 		MetStop(seq_record.seq, seq_record.id, genomic_region_up, genomic_region_down, min_prot_len, datahandler3, orfs, max_prot_len, max_d2m)
 	SeqIO.write(orfs, datahandler3, 'fasta')
-	print int(1/0)
+	#print int(1/0)
 
 	print '// Wrote %s protein sequences with a mimp IR motif in their promoter and an ORF >%i and <%i aa to %s' % (len(orfs), min_prot_len, max_prot_len, datahandler3)
 	print '-'*20
