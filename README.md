@@ -46,13 +46,37 @@ Gene finder finds genes or effectors using given sequence file. Genes must be en
 
 -d2m max distance between the start of the sequence and the first amino acid. Defaults to 2500
 
--s location of the signalp file
+-s directory of the signalp file
 
 -sp minimum score that will result in a positive prediction of a signal peptide. Defaults to .45
 
 
 cluster:
 
-Cluster takes sequences and groups them together based on coverage and identity scores generated from a self blast. A high and low version of both scores can be specified. High quality clusters (h_i_h_c) are comprised of sequences that meet the the high end requirements for both coverage and identity. Clusters formed that 
+Cluster takes sequences and groups them together based on coverage and identity scores generated from a self blast. A high and low version of both scores can be specified. High quality clusters (h_i_h_c) are comprised of sequences that meet the the high end requirements for both coverage and identity. l_i_h_c and h_i_l_c are clusters formed when genes meet one, but not both of the higher end parameters. Singletons are genes that were unable to be grouped in h_i_h_c clusters. 
+
+-i The fasta file containing data to be clustered. For example, the file all_putative_genes_concatenated.fasta file generated from the gene finder program
+
+-bd a folder where all blasted files can be stored to
+
+-dc input TRUE if you are clustering a clustered file that does not contain any description, but only a .id. Defaults to false
+
+-b BLASTbindir (i.e. /usr/local/bin)
+
+-x a fasta file containing clusters / sequences to examine further. Optional
+
+-e the minimum e value for BLAST. Default to .001
+
+-p the minimum percent of shared identity between two sequences needed for the two to be clustered. Defaults to 90
+
+-t bare minimum of overlap needed for clustering. Defaults to .25
+
+-w bare minimum of identity needed to for clustering. Defaults to 50
+
+-l minimum amount of overlap two sequences need to have to cluster. Defaults to .9
+
+-cn if true, removes sequences the have more than x percentage of Ns. Defaults to True
+
+-n max percentage of Ns that are allowed in a sequence file. Defaults to 0
 
 
