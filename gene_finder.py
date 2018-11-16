@@ -53,17 +53,15 @@ def MetStop(sequence, ident, genomic_region_up, genomic_region_down, min_prot_le
 			if stop_location>0:
 				prot = sequence[met_location[x]:stop_location+1] 	#+1 = add STOP
 				dist_to_gene_fromstop = (stop_location*3)
-			else:
-				prot = sequence[met_location[x]:]
-				dist_to_gene_fromstop = (len(prot)*3) 
-			dist_to_gene = (met_location[x]*3)		 	#genomic distance
+			
+				dist_to_gene = (met_location[x]*3)		 	#genomic distance
 
-			if len(prot) > min_prot_len:
-				startpos = genomic_region_up+dist_to_gene
-				endpos = genomic_region_up+dist_to_gene_fromstop
-				orf_record = SeqRecord(seq=prot.strip('*'), id=str(ident).replace('downstream', 'ds').replace('upstream', 'us') +"|"+str(startpos)+'-'+str(endpos)+'|d2m:'+str(dist_to_gene)+'|len:'+str(len(prot)-1), description='')
-				if len(prot) < int(max_prot_len):
-					orfs.append(orf_record)
+				if len(prot) > min_prot_len:
+					startpos = genomic_region_up+dist_to_gene
+					endpos = genomic_region_up+dist_to_gene_fromstop
+					orf_record = SeqRecord(seq=prot.strip('*'), id=str(ident).replace('downstream', 'ds').replace('upstream', 'us') +"|"+str(startpos)+'-'+str(endpos)+'|d2m:'+str(dist_to_gene)+'|len:'+str(len(prot)-1), description='')
+					if len(prot) < int(max_prot_len):
+						orfs.append(orf_record)
 
 		x+=1
 	
