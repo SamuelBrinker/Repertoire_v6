@@ -1,6 +1,7 @@
 from Bio.Blast.Applications import NcbiblastnCommandline, NcbitblastnCommandline
 from Bio.Blast import NCBIXML
 from Bio import SeqIO
+import subprocess
 
 import csv, os, re, sys, glob, datetime
 
@@ -65,7 +66,7 @@ class pres_abs_varApp():
 		self.verbose = False
 
 
-	def start(self, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, PERC_IDENTITY_THRESH=80):
+	def start(self, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80):
 
 	### arguments being passed from pipeline script: ###
 		queryfilename = queryfile.split('/')[-1]
@@ -202,4 +203,17 @@ class pres_abs_varApp():
 		outfile.close()
 		print '-'*30
 		print "// Written data to file: ", outfilename
-		print '-'*30
+		print '-'*30,'\n', "Generating image"
+		print r_location, outfilename
+		subprocess.call ("Rscript --vanilla "+str(r_location)+" "+str(outfilename), shell=True)
+
+
+
+
+
+
+
+
+
+
+
