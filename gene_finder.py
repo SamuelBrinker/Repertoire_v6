@@ -312,15 +312,17 @@ class gene_finderApp():
 
 	def __init__(self):
 		self.verbose = False
-	def start(self, directory_folder, output_dir, SignalPpath, min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45):
+	def start(self, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45):
 
 	#####################
 		if directory_folder[-1]=="/":
 			directory_folder=directory_folder[:-1]
+		if output_dir[-1]=="/":
+			output_dir=output_dir[:-1]
+
 		folder = directory_folder.split('/')[-1]
 		directory = directory_folder.split(folder)[0]
 
-		print directory, "tes",
 		file_extensions = (".fa", ".fasta", ".fas", "fna") # Specify the suffix of the genome files (.fa, .fasta, etc)
 		combined_puteff_dir = output_dir+'/01.gene_finder/'+folder+'_MetStopOut/'
 
