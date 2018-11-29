@@ -69,6 +69,13 @@ class pres_abs_varApp():
 	def start(self, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80):
 
 	### arguments being passed from pipeline script: ###
+		if outputdir[-1]=="/":
+			outputdir=outputdir[:-1]
+		if genome_folder[-1]=="/":
+			genome_folder=genome_folder[:-1]
+		if queryfile[-1]=="/":
+			queryfile=queryfile[:-1]
+
 		queryfilename = queryfile.split('/')[-1]
 		queryfolder = queryfile.split(queryfilename)[0]
 		genome_folder_b = genome_folder.split('/')[-1]
