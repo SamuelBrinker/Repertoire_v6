@@ -1,5 +1,5 @@
 # Repertoire
-Repertiore is a gene clustering program based on the works of Peter van Dam's FoEC program. 
+Repertiore is a gene clustering program based on the works of Peter van Dam's FoEC program. Currently a work in progress, it is being designed out of the Gordon Lab at UC Davis's Plant Pathology Department.
 
 It is made in python 2.7 and requires the following dependencies:
 
