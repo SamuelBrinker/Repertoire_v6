@@ -20,22 +20,38 @@ def remove_n(infile, n_allowed):
 	edited_data=[]
 	sequence=False
 	header=''
+
+	fixed_fasta=[]
+	temp_line=''
 	for line in raw:
+
+		if '>' in line:
+			if temp_line!='':
+				fixed_fasta.append(temp_line+'\n')
+			fixed_fasta.append(line)
+			temp_line=''
+		else:
+			temp_line+=line.replace('\n','')
+
+	for line in fixed_fasta:
 		if '\n'!=line and ''!=line:
 			if sequence ==True:
-				if 'N' in line or 'n' in line:
-					if float(line.upper().count('N'))/len(line)<=n_allowed:
-						edited_data.append(header)
-						edited_data.append(line)
-						#if '08_fo_con_54008_MIMP_TIR_Element_66' in header:
-						#	print 'tes', header, [line]
-						sequence=False
-				elif '\n'!=line or ''!=line:
+				if float(line[:-2].upper().count('N'))/len(line)<=n_allowed:
 					edited_data.append(header)
 					edited_data.append(line)
+						#if "08_fo_con_54008_MIMP_TIR_Element_31" in header:
+						#	print header, line
+						#if '08_fo_con_54008_MIMP_TIR_Element_66' in header:
+						#	print 'tes', header, [line]
+					sequence=False
+				#elif '\n'!=line or ''!=line:
+				#	edited_data.append(header)
+				#	edited_data.append(line)
+					#if "08_fo_con_54008_MIMP_TIR_Element_31" in header:
+					#	print header, line
 					#if '08_fo_con_54008_MIMP_TIR_Element_66' in header:
 					#		print 'test1'
-					sequence=False
+					#sequence=False
 			if '>' in line:
 				header=line 
 				#if '08_fo_con_54008_MIMP_TIR_Element_66' in header:
@@ -336,7 +352,7 @@ class clusterApp():
 		self.verbose = False
 
 
-	def start(self, infile, blastdatabasedir, BLASTbindir, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, LENGTH_THRESH=.9, n_allowed=0, check_n=True): #, all_data="False"):
+	def start(self, infile, blastdatabasedir, BLASTbindir, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, LENGTH_THRESH=.9, n_allowed=0, check_n=True, force=True): #, all_data="False"):
 
 		infile_filename = infile.split('/')[-1]
 
@@ -349,7 +365,7 @@ class clusterApp():
 		clusters_to_examine=[]
 		clusters_to_write=""
 
-		test=True
+		#test=True
 
 		if examin!= "": #retrieve effectors to look at if they exist
 			with open(examin, 'r') as file:
@@ -383,9 +399,29 @@ class clusterApp():
 
 		print '\n', "Generating cluster information \n"
 
+
 		blastoutfilename = infiledir+infile.split('/')[-1].split('.fa')[0]+'.vs.'+infile.split('/')[-1].split('.fa')[0]+'.blastout'
 		blastout = open(blastoutfilename).readlines()
 		
+		##### check if files exist
+		high_quality_clustered_genes_file="high_quality_clustered_genes_run_1.fasta"
+		expanded_clusters_file="expanded_clusters_run_1.txt"
+		all_genes_file='all_clustered_genes_run_1.fasta'
+		pres_abs_file='cluster_pres_abs_run_1.txt'
+
+		if force!=True:
+			x=2
+			while os.path.isfile(high_quality_clustered_genes_file)==True and os.path.isfile(expanded_clusters_file)==True and os.path.isfile(all_genes_file)==True and os.path.isfile(pres_abs_file)==True:
+				high_quality_clustered_genes_file=high_quality_clustered_genes_file.split['run'][0]+'_run_'+str(x)+".fasta"
+				expanded_clusters_file=expanded_clusters_file.split['run'][0]+'_run_'+str(x)+'.txt'
+				all_genes_file=all_genes_file.split['run'][0]+'_run_'+str(x)+".fasta"
+				pres_abs_file=pres_abs_file.split['run'][0]+'_run_'+str(x)+'.txt'
+				x+=1
+			
+
+
+		#####
+
 		all_expanded=[]
 		i=0
 		d=0
