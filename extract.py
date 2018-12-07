@@ -13,19 +13,32 @@ class extractApp():
 		infiledir = expanded.split(infile_filename)[0]
 		extracted_path=infiledir+'extracted_genes/'
 		if not os.path.exists(extracted_path):
-			os.makedirs(extracted_path)		
+			os.makedirs(extracted_path)	
+
 		with open(to_examine, 'r') as file:
 			all_examine=file.readlines()
 			file.close()
+
+		#print all_examine[:4]
 
 		examin_headers=[]
 		for line in all_examine:
 			if '>' in line:
 				examin_headers.append(line.split('>')[1])
+			elif '\n'!=line:
+				examin_headers.append(line)
 		#print len(examin_headers)
+
 		with open(expanded, 'r') as file:
 			all_exapnded =file.readlines()
 			file.close()
+		#print all_exapnded[:4]
+		x=0
+		while x <len(all_examine):
+			#print [all_examine[x]]
+			all_examine[x]=str(all_examine[x]).replace('\t','').replace('\n','')
+
+			x+=1
 
 		#print all_exapnded[0:3]
 		clustered_headers=[]
@@ -33,6 +46,7 @@ class extractApp():
 		record=False
 		y=0
 		t=True
+		#print examin_headers[:4]
 		for header in examin_headers:
 			
 			for line in all_exapnded:
@@ -67,7 +81,7 @@ class extractApp():
 						record=True
 		clustered_headers.append(clusters)	
 
-		print len(clustered_headers)
+		#print len(clustered_headers)
 
 
 		with open(database,'r') as file:
@@ -88,7 +102,7 @@ class extractApp():
 				all_genes.append(gene)
 
 		#print [clustered_headers[-1][0]]
-		#print [all_genes[0]]
+		print [all_genes[0]]
 
 		reverse=False
 		check=True
@@ -124,11 +138,11 @@ class extractApp():
 							
 					if reverse==True:
 
-						if ">"+cluster[z].split('_Reversed')[0] == all_genes[x] and cluster[z]!='\n':
+						if ">"+cluster[z].split('_Reversed')[0] == all_genes[x].split(" ")[0] and cluster[z]!='\n':
 							to_write+='>'+cluster[z]
 							record=True
 					else:
-						if ">"+cluster[z].replace('\n',"") == all_genes[x] and cluster[z]!='\n':
+						if ">"+cluster[z].replace('\n',"") == all_genes[x].split(" ")[0] and cluster[z]!='\n':
 							to_write+='>'+cluster[z]
 							record=True
 					x+=1
