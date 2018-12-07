@@ -138,13 +138,21 @@ Presence absence variation takes a fasta file containing genes of interest and d
 pat_match:
 
 Pat_match takes a modified presence / absences table and will search it a specified pattern. The table must be formated in the following fashion
+
         pattern gene_1   gene_2     gene_3    gene_4
+        
 genome_1  N       1         0         1         1
+
 genome_2  1       1         1         0         1
+
 genome_3  1       0         1         1         1
+
 genome_4  0       0         0         0         0
+
 genome_5  N       1         1         1         0
+
 genome_6  1       1         0         1         1
+
 This pattern will return gene_4 
 
 -i input file name, pres / abs table generated from pres_abs_var
