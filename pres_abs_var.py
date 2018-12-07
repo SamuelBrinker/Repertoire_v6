@@ -3,7 +3,7 @@ from Bio.Blast import NCBIXML
 from Bio import SeqIO
 import subprocess
 
-import csv, os, re, sys, glob, datetime
+import csv, os, re, sys, glob
 
 
 def BuildBlastDB(genome_folder, genome_fastafile, blastdatabasedir, BLASTbindir,buildblastdb):
@@ -66,7 +66,7 @@ class pres_abs_varApp():
 		self.verbose = False
 
 
-	def start(self, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80):
+	def start(self, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80, force = True, show_all=False):
 
 	### arguments being passed from pipeline script: ###
 		if outputdir[-1]=="/":
@@ -86,13 +86,19 @@ class pres_abs_varApp():
 			os.makedirs(outputdir)
 		###
 		#print buildblastdb, "test"
-		date_time_now 			= datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
+		#date_time_now 			= datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
 		outfilename 			= outputdir+genome_folder_b+'.vs.'+queryfilename.split('.fa')[0]+'.txt'
 		E_VALUE_THRESH 			= 0.001
 		BLAST_type 				= 'BLASTN'
 		transpose 				= True
 		plot_copynumber 		= False #define whether presence is '1' or copy nr (# of blast hits)
 		
+		if force !=True and os.path.isfile(outfilename)==True:
+			x=2
+			while os.path.isfile(outfilename)==True:
+				outfilename = outputdir+genome_folder_b+'.vs.'+queryfilename.split('.fa')[0]+'_run_'+str(x)+'.txt'
+				x+=1
+
 		if buildblastdb == 'yes':
 			print "// Will start with building BlastDBs of each genome encountered.\n"
 		
@@ -154,9 +160,9 @@ class pres_abs_varApp():
 		header = ''
 		if hierarchicalclustering == False:
 			if output_contigs in no:
-				header = BLAST_type+' PERCENT IDENTITY\nDate: '+date_time_now+'\nE-value: '+str(E_VALUE_THRESH)+'\n'+'%ID_threshold: '+str(PERC_IDENTITY_THRESH)+'%\n''query:'
+				header = BLAST_type+' PERCENT IDENTITY\nE-value: '+str(E_VALUE_THRESH)+'\n'+'%ID_threshold: '+str(PERC_IDENTITY_THRESH)+'%\n''query:'
 			elif output_contigs in yes:
-				header = BLAST_type+' CONTIG NR + SUBJECT LOCATION\nDate: '+date_time_now+'\nE-value: '+str(E_VALUE_THRESH)+'\n'+'%ID_threshold: '+str(PERC_IDENTITY_THRESH)+'%\n''query:'
+				header = BLAST_type+' CONTIG NR + SUBJECT LOCATION\nE-value: '+str(E_VALUE_THRESH)+'\n'+'%ID_threshold: '+str(PERC_IDENTITY_THRESH)+'%\n''query:'
 
 		if transpose == True:
 			for effector in sorted(effector2genome2scores.keys()):
@@ -212,7 +218,11 @@ class pres_abs_varApp():
 		print "// Written data to file: ", outfilename
 		print '-'*30,'\n', "Generating image"
 		print r_location, outfilename
-		subprocess.call ("Rscript --vanilla "+str(r_location)+" "+str(outfilename), shell=True)
+
+		if show_all==False:
+			subprocess.call ("Rscript --vanilla "+str(r_location)+" "+str(outfilename)+" FALSE", shell=True)
+		else:
+			subprocess.call ("Rscript --vanilla "+str(r_location)+" "+str(outfilename)+" TRUE", shell=True)
 
 
 
