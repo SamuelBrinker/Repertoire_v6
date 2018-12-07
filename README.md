@@ -148,4 +148,4 @@ genome_6  1       1         0         1         1
 This pattern will return gene_4 
 
 -i input file name, pres / abs table generated from pres_abs_var
--o output file name, default pat_match_output.txt
+-o output file name. If the file name already exists or no name is entered it will default to pat_match_output.txt
