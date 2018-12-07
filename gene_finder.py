@@ -275,7 +275,7 @@ def ExtractOrfToFasta(proteinsfasta, uberinfile, puteff_dnaseqs, genome, puteff_
 	print '-'*20
 	print "// Finished with genome of %s; wrote %i genomic DNA sequences of putEff ORFs to %s" % (genome, n/2, puteff_dnaseqs)
 
-def MainDef(genomefastafile, directory, folder, combined_puteff_fasta, combined_puteff_logfile, filecounter, combined_puteff_logfile2, combined_puteff_dir,min_prot_len,max_prot_len,max_d2m,SignalPpath,SignalP_threshold):
+def MainDef(genomefastafile, directory, folder, combined_puteff_fasta, combined_puteff_logfile, filecounter, combined_puteff_logfile2, combined_puteff_dir,min_prot_len,max_prot_len,max_d2m,SignalPpath,SignalP_threshold,force):
 
 	print directory, "  ", folder
 	infilename, infileextension = os.path.splitext(genomefastafile)
@@ -300,10 +300,13 @@ def MainDef(genomefastafile, directory, folder, combined_puteff_fasta, combined_
 
 	#nrofcompletemimps, nrofincompletemimps = MimpFinder(infile, sc_prefix, forward_mimps, reverse_mimps, datahandler, distance, mimpsequencesfile, infilename) #ir_dict[i] = [m.start()+1, m.end(), seq_record.seq[m.start():m.end()], seq_record.seq[m.end():m.end()+distance]]
 
-	Translator(infile, datahandler2)
-	OrfFinder(datahandler2, min_prot_len, datahandler3, orfs, max_prot_len, max_d2m)
-	OrfWriter(datahandler3, signalpfile, min_prot_len, proteinoutfile, SignalPpath, SignalP_threshold,outdirectory)
-	ExtractOrfToFasta(proteinoutfile, infile, puteff_dnaseqs, infilename, puteff_logfile, combined_puteff_fasta, combined_puteff_logfile, filecounter, combined_puteff_logfile2)
+	if force!=True and (os.path.isfile(datahandler2)==True or os.path.isfile(datahandler3)==True or os.path.isfile(signalpfile)==True or os.path.isfile(proteinoutfile)==True or os.path.isfile(puteff_dnaseqs)==True or os.path.isfile(puteff_logfile)==True):
+		pass
+	else:
+		Translator(infile, datahandler2)
+		OrfFinder(datahandler2, min_prot_len, datahandler3, orfs, max_prot_len, max_d2m)
+		OrfWriter(datahandler3, signalpfile, min_prot_len, proteinoutfile, SignalPpath, SignalP_threshold,outdirectory)
+		ExtractOrfToFasta(proteinoutfile, infile, puteff_dnaseqs, infilename, puteff_logfile, combined_puteff_fasta, combined_puteff_logfile, filecounter, combined_puteff_logfile2)
 
 	#return mimpsequencesfile
 
@@ -312,7 +315,7 @@ class gene_finderApp():
 
 	def __init__(self):
 		self.verbose = False
-	def start(self, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45):
+	def start(self, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, force = True):
 
 	#####################
 		if directory_folder[-1]=="/":
@@ -330,18 +333,30 @@ class gene_finderApp():
 			os.makedirs(combined_puteff_dir)
 
 		combined_puteff_fasta	= combined_puteff_dir+'all_putative_genes.fasta'
-		open(combined_puteff_fasta, 'w').close()
+		#open(combined_puteff_fasta, 'w').close()
 		combined_puteff_logfile = combined_puteff_dir+'all_putative_genes_log.txt'
-		open(combined_puteff_logfile, 'w').close()
+		#open(combined_puteff_logfile, 'w').close()
 		combined_puteff_logfile2 = combined_puteff_dir+'all_putative_genes_log2.txt'
-		open(combined_puteff_logfile2, 'w').close()
+		#open(combined_puteff_logfile2, 'w').close()
+
+		if force!=True:
+			x=2
+			while os.path.isfile(combined_puteff_fasta)==True and os.path.isfile(combined_puteff_logfile)==True and os.path.isfile(combined_puteff_logfile2)==True:
+				combined_puteff_fasta	= combined_puteff_dir+'all_putative_genes_run_'+str(x)+ '.fasta'
+				combined_puteff_logfile = combined_puteff_dir+'all_putative_genes_log_run_'+str(x)+ '.txt'
+				combined_puteff_logfile2 = combined_puteff_dir+'all_putative_genes_log2_run_'+str(x)+ '.txt'
+				x+=1
+		else:
+			open(combined_puteff_fasta, 'w').close()
+			open(combined_puteff_logfile, 'w').close()
+			open(combined_puteff_logfile2, 'w').close()
 		######################
 		filecounter=0
 	 	for genomefastafile in os.listdir(directory_folder):
 	 		if genomefastafile.endswith(file_extensions):
 				print "\n// executing mimpfinder_MetStop script for "+genomefastafile
 
-				MainDef(genomefastafile, directory, folder, combined_puteff_fasta, combined_puteff_logfile, filecounter, combined_puteff_logfile2, combined_puteff_dir, min_prot_len, max_prot_len, max_d2m, SignalPpath, SignalP_threshold)
+				MainDef(genomefastafile, directory, folder, combined_puteff_fasta, combined_puteff_logfile, filecounter, combined_puteff_logfile2, combined_puteff_dir, min_prot_len, max_prot_len, max_d2m, SignalPpath, SignalP_threshold,force)
 				filecounter+=1
 		
 		print '-'*20
