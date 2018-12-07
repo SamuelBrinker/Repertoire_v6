@@ -156,4 +156,5 @@ Pat_match takes a modified presence / absences table and will search it a specif
 This pattern will return gene_4 
 
 -i input file name, pres / abs table generated from pres_abs_var
+
 -o output file name. If the file name already exists or no name is entered it will default to pat_match_output.txt
