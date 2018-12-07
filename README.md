@@ -151,7 +151,7 @@ Pat_match takes a modified presence / absences table and will search it a specif
 
         genome_5  N       1         1         1         0
 
-genome_6  1       1         0         1         1
+        genome_6  1       1         0         1         1
 
 This pattern will return gene_4 
 
