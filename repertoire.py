@@ -128,7 +128,7 @@ class extractCMD:
     return app.start(args.database, args.expanded, args.to_examine )
 
 def pat_matchParser(subparsers):
-  pat_match_parser = subparsers.add_parser('pat_match', help='searches tab-delimited text file for specified pattern')
+  pat_match_parser = subparsers.add_parser('pat_match', help='searches tab-delimited presence absence table for specified pattern')
   pat_match_parser.add_argument('-o', '--outputfile', help='output file name', dest='outputfile', type=str, default="pat_match_output.txt")
   pat_match_parser.add_argument('-i', '--inputfile', help='input file name, pres / abs table generated from pres_abs_var', dest='inputfile', type=str)
 
