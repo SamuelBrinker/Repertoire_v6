@@ -153,7 +153,7 @@ Pat_match takes a modified presence / absences table and will search it a specif
 
         genome_6  1       1         0         1         1
 
-This pattern will return gene_4 
+A '1' or '0' indicates that a gene must be present/absent in a given genome while an 'N' will ignore the geome. This pattern will return gene_4 
 
 -i input file name, pres / abs table generated from pres_abs_var
 
