@@ -77,7 +77,7 @@ class pres_abs_varCMD:
 
   def execute(self, args):
     app = pres_abs_var.pres_abs_varApp()
-    return app.start(args.queryfile, args.genome_folder, args.blastdatabasedir, args.BLASTbindir, args.outputdir, args.buildblastdb, args.r_location, args.PERC_IDENTITY_THRESH, args.force, args.show)
+    return app.start(args.queryfile, args.genome_folder, args.blastdatabasedir, args.BLASTbindir, args.outputdir, args.buildblastdb, args.r_location, args.PERC_IDENTITY_THRESH, args.force, args.show_all)
 
 
 def clusterParser(subparsers):
