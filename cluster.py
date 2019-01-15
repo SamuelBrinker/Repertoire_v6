@@ -65,7 +65,7 @@ def remove_n(infile, n_allowed):
 
 
 
-def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, LENGTH_THRESH, blastdatabasedir, BLASTbindir, infiledir, low_identity, low_length_thresh):
+def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, LENGTH_THRESH, blastdatabasedir, BLASTbindir, infiledir, low_identity, low_length_thresh, lihc, hilc,all_clusters, alignments):
 	database_store = blastdatabasedir+'/'+infile.split('/')[-1].split('.fa')[0]
 
 
@@ -83,8 +83,10 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 	cmnd = BLASTbindir+'/makeblastdb -dbtype nucl -in '+infile+' -out '+database_store
 	print "---BLASTDB---\n", cmnd, os.system(cmnd), "---\n" #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
 	blastoutfilename = infiledir+infile.split('/')[-1].split('.fa')[0]+'.vs.'+infile.split('/')[-1].split('.fa')[0]+'.blastout'
-	cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -dust no -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)
+	cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -dust no -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
 	#										0	  1	    2	   3	  4 		5	    6	   7		8	  9 	10	 11	   12	 13
+
+	#print hilc, lihc
 
 	effector2homologs = {}
 	high_i_high_c=[] #high identity, high coverage
@@ -99,6 +101,13 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 		lines = open(blastoutfilename).readlines()
 			#'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen    slen'
 		while i< 4:
+			if i==1 and hilc!=True:
+				cluster_catagories.append([[]])
+				i+=1
+			if i==2 and lihc!=True:
+				cluster_catagories.append([[]])
+				i+=1
+
 			if i==0:
 				print ("Finding high identity high coverage clusters")
 			elif i==1:
@@ -228,16 +237,28 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 				elif i==3: #singletons
 					x=0
 					
-					while x<len(low_i_high_c): #checks through all of the clusters to make sure the effector is not present in them
-						if tabs[0]  in low_i_high_c[x] :
-							q_new=False
-						if tabs[1] in low_i_high_c[x]:
-							s_new=False
-							
-						x+=1
-						if q_new== False and s_new==False:
-							x==len(low_i_high_c)
-					x=0
+					if lihc==True:
+						while x<len(low_i_high_c): #checks through all of the clusters to make sure the effector is not present in them
+							if tabs[0]  in low_i_high_c[x] :
+								q_new=False
+							if tabs[1] in low_i_high_c[x]:
+								s_new=False
+								
+							x+=1
+							if q_new== False and s_new==False:
+								x==len(low_i_high_c)
+						x=0
+					else:
+						while x<len(high_i_high_c):
+							if tabs[0]  in high_i_high_c[x]:
+								q_new=False
+
+							if tabs[1]  in high_i_high_c[x]:
+								s_new=False
+							x+=1
+							if q_new== False and s_new==False:
+								x==len(high_i_high_c)
+						x=0
 					'''
 					while x<len(high_i_high_c):
 						if tabs[0]  in high_i_high_c[x]:
@@ -249,6 +270,7 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 						if q_new== False and s_new==False:
 							x==len(high_i_high_c)
 					x=0
+					
 					while x<len(high_i_low_c):
 						if tabs[0] in high_i_low_c[x]:
 							q_new=False
@@ -276,40 +298,53 @@ def cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, L
 			if i<3:
 				if i==1:
 					r=0
-				cluster_catagories.append(single_linkage(precluster_catagories[i])) #cluseters together the groups
+				cluster_catagories.append(single_linkage(precluster_catagories[i],all_clusters)) #cluseters together the groups
 			else:
 				print "Number of singletons", len(singletons), '\n'
 				cluster_catagories+=[singletons]
-			
+				with open("all_clusters_test.txt", "a") as file:
+					file.write("singletons\n")
+					#print singletons[0]
+					for s in singletons:
+						file.writelines(s+'\n')
 			i+=1	
 
 	return cluster_catagories
-def single_linkage(node_partners):
+def single_linkage(node_partners,all_clusters):
 		
 	clusters=[]
 	i=0
 	nodes=[]
 	repeats=[]
-	while i<len(node_partners):
-		nodes.append(node_partners[i][0])
-		i+=1
-	i=0 #sets nodes to all of the keys, which should be every sample with a match
-	while i< len(nodes): #cycles each of the nodes and tries to cluster them
-		no_repeated_clusters=True
-		x=0
-		while x<len(clusters):
-			if nodes[i] in clusters[x]:
-				no_repeated_clusters=False
-				break
-			x+=1
+	with open(all_clusters, "a") as file:
+		z=1
+		while i<len(node_partners):
+			nodes.append(node_partners[i][0])
+			i+=1
+		i=0 #sets nodes to all of the keys, which should be every sample with a match
+		while i< len(nodes): #cycles each of the nodes and tries to cluster them
+			no_repeated_clusters=True
+			x=0
+			while x<len(clusters):
+				if nodes[i] in clusters[x]:
+					no_repeated_clusters=False
+					break
+				x+=1
 
-		if no_repeated_clusters==True:
-			cluster =[]
-			cluster=update_cluster(node_partners, nodes[i]) #sends all of the master dictionary, the key, and an empty set to update_cluster
-			clusters.append(cluster)
-			
-		i+=1
+			if no_repeated_clusters==True:
+				cluster =[]
+				cluster=update_cluster(node_partners, nodes[i]) #sends all of the master dictionary, the key, and an empty set to update_cluster
+				file.write("cluster_"+str(z)+'\n')
+				for c in cluster:
+					file.writelines(c+'\n')
+				file.write('\n')
+				z+=1
+				clusters.append(cluster)
+				
+			i+=1
+		file.close()
 	print "number of clusters: ", len(clusters)
+		
 	return clusters
 
 def update_cluster(node_partners, temp):
@@ -352,7 +387,29 @@ class clusterApp():
 		self.verbose = False
 
 
-	def start(self, infile, blastdatabasedir, BLASTbindir, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, LENGTH_THRESH=.9, n_allowed=0, check_n=True, force=True): #, all_data="False"):
+	def start(self, infile, blastdatabasedir, BLASTbindir,check_n, force, lihc, hilc, expanded, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, LENGTH_THRESH=.9, n_allowed=0, threads=1,alignments=250): #, all_data="False"):
+		
+		####### ADDD PROPER NAME
+		all_clusters='all_clusters_run_1.txt'
+		if force!=True:
+			x=2
+			while os.path.isfile(all_clusters) ==True:
+				all_clusters=all_clusters.split('run_')[0]+'run_'+str(x)+'.txt'
+				x+=1
+		with open(all_clusters, 'w') as file:
+			file.close()
+
+		if '../' in infile or infile[0]!='/':
+			dir = os.path.dirname(__file__)
+			infile = os.path.join(dir, infile)
+
+		if '../' in BLASTbindir or BLASTbindir[0]!='/':
+			dir = os.path.dirname(__file__)
+			BLASTbindir = os.path.join(dir, BLASTbindir)
+
+		if '../' in blastdatabasedir or blastdatabasedir[0]!='/':
+			dir = os.path.dirname(__file__)
+			blastdatabasedir = os.path.join(dir, blastdatabasedir)
 
 		infile_filename = infile.split('/')[-1]
 
@@ -395,7 +452,10 @@ class clusterApp():
 
 		print '\n'
 		print "// Running clustering script on file %s" % infile
-		catagory = cluster_homologous_effectors(infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH,LENGTH_THRESH, blastdatabasedir, BLASTbindir, infiledir, low_identity, low_length_thresh)
+
+		#print hilc, lihc
+
+		catagory = cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH,LENGTH_THRESH, blastdatabasedir, BLASTbindir, infiledir, low_identity, low_length_thresh, lihc, hilc,all_clusters,alignments)
 
 		print '\n', "Generating cluster information \n"
 
@@ -411,11 +471,14 @@ class clusterApp():
 
 		if force!=True:
 			x=2
+			#print "test"
+			#if os.path.isfile(high_quality_clustered_genes_file)==True:
+				#print "test"
 			while os.path.isfile(high_quality_clustered_genes_file)==True and os.path.isfile(expanded_clusters_file)==True and os.path.isfile(all_genes_file)==True and os.path.isfile(pres_abs_file)==True:
-				high_quality_clustered_genes_file=high_quality_clustered_genes_file.split['run'][0]+'_run_'+str(x)+".fasta"
-				expanded_clusters_file=expanded_clusters_file.split['run'][0]+'_run_'+str(x)+'.txt'
-				all_genes_file=all_genes_file.split['run'][0]+'_run_'+str(x)+".fasta"
-				pres_abs_file=pres_abs_file.split['run'][0]+'_run_'+str(x)+'.txt'
+				high_quality_clustered_genes_file=high_quality_clustered_genes_file.split('run')[0]+'_run_'+str(x)+".fasta"
+				expanded_clusters_file=expanded_clusters_file.split('run')[0]+'_run_'+str(x)+'.txt'
+				all_genes_file=all_genes_file.split('run')[0]+'_run_'+str(x)+".fasta"
+				pres_abs_file=pres_abs_file.split('run')[0]+'_run_'+str(x)+'.txt'
 				x+=1
 			
 
@@ -425,6 +488,9 @@ class clusterApp():
 		all_expanded=[]
 		i=0
 		d=0
+		if expanded:
+			expanded_clusters=''
+		#debug=True
 		file = list(SeqIO.parse(infile, "fasta"))
 		for clusters in catagory: #catagories -> clusters -> cluster -> effector
 			longest_elements = []
@@ -437,10 +503,11 @@ class clusterApp():
 				if i==3: #retrieves the sequence for singeltons
 					for sample in file:
 						if clusters[cluster] == sample.id:
+							#if debug==True:
+							#	print sample
+							#	debug=False
 							longest_elements.append(sample)
-
 							all_expanded.append('\n--------singleton_'+sample.id+'\n'+str(sample.id)+'\n')
-
 							if examin!='':
 								for effector in clusters_to_examine:
 									if d<5:
@@ -476,12 +543,13 @@ class clusterApp():
 					
 					
 				else:  #Things that are not singletons
-					expanded_clusters=''
+					if expanded:
+						expanded_clusters=''
 					elm_in_cluster=[]
 
 					for elem in clusters[cluster]: #clusters are an array of samples
-
-						expanded_clusters+=str(elem)+'\n'
+						if expanded:
+							expanded_clusters+=str(elem)+'\n'
 
 						if examin!=[]:  #if there are clusters to examine, this will will add all elements of the cluster to a list
 							elm_in_cluster.append(elem)
@@ -530,80 +598,80 @@ class clusterApp():
 							z+=1
 
 					#####################################################################################################
-					
-					#cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)
-					#											0	  1	    2	   3	  4 		5	    6	   7	8	  9 	10	 11	   12	 13
-					difference=[100,'',0,'',' gene(s) do not match: '] #difference identity, coverage
-					new_cluster=[]
-					genes_not_present=0
-					for header in clusters[cluster]: ########### Refine the cluster
-						matches_longest=False
-						longest_check =True
+					if expanded:
+						#cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)
+						#											0	  1	    2	   3	  4 		5	    6	   7	8	  9 	10	 11	   12	 13
+						difference=[100,'',0,'',' gene(s) do not match: '] #difference identity, coverage
+						new_cluster=[]
+						genes_not_present=0
+						for header in clusters[cluster]: ########### Refine the cluster
+							matches_longest=False
+							longest_check =True
 
-						for line in blastout:
-							if longest_elem[1] in line and header in line and longest_elem[1] != header and header!='\n':
-								matches_longest=True
-								tabs = line.strip().split('\t')	
-								q_score =abs((int(tabs[7]) - int(tabs[6]))/float(tabs[12])) #covereage calculated by q_score/s_score ratio
-								s_score =abs((int(tabs[9]) - int(tabs[8]))/float(tabs[13])) 
-								if q_score>=s_score:
-									c_score=(s_score/q_score)
-								else:
-									c_score=(q_score/s_score)
+							for line in blastout:
+								if longest_elem[1] in line and header in line and longest_elem[1] != header and header!='\n':
+									matches_longest=True
+									tabs = line.strip().split('\t')	
+									q_score =abs((int(tabs[7]) - int(tabs[6]))/float(tabs[12])) #covereage calculated by q_score/s_score ratio
+									s_score =abs((int(tabs[9]) - int(tabs[8]))/float(tabs[13])) 
+									if q_score>=s_score:
+										c_score=(s_score/q_score)
+									else:
+										c_score=(q_score/s_score)
 
-	
-								if longest_elem[1] in tabs[0] and header in tabs[1]:
-									if float(tabs[2]) >= PERC_IDENTITY_THRESH and (c_score >= (LENGTH_THRESH) and c_score <= (2-LENGTH_THRESH)):
-										if (int(tabs[8])>int(tabs[9]) and longest_check==True) or (int(tabs[8])<int(tabs[9]) and longest_check==True and tabs[0]+'_Reversed' in expanded_clusters):
-											temp_species=header+'_Reversed'
+		
+									if longest_elem[1] in tabs[0] and header in tabs[1]:
+										if float(tabs[2]) >= PERC_IDENTITY_THRESH and (c_score >= (LENGTH_THRESH) and c_score <= (2-LENGTH_THRESH)):
+											if (int(tabs[8])>int(tabs[9]) and longest_check==True) or (int(tabs[8])<int(tabs[9]) and longest_check==True and tabs[0]+'_Reversed' in expanded_clusters):
+												temp_species=header+'_Reversed'
 
-											if temp_species+'\n' not in expanded_clusters and tabs[0]!=tabs[1]:
-												try:
-													expanded_clusters=expanded_clusters.split(header+'\n')[0]+temp_species+'\n'+expanded_clusters.split(header+'\n')[1]
-												except:
-													print header, '\n', '\n', expanded_clusters, '\n', i, '\n'
-								
-										else:
-											temp_species=header
+												if temp_species+'\n' not in expanded_clusters and tabs[0]!=tabs[1]:
+													try:
+														expanded_clusters=expanded_clusters.split(header+'\n')[0]+temp_species+'\n'+expanded_clusters.split(header+'\n')[1]
+													except:
+														print header, '\n', '\n', expanded_clusters, '\n', i, '\n'
+									
+											else:
+												temp_species=header
 
-										longest_check=False #In blast results, the longest match will be first. This should tell orientation 
+											longest_check=False #In blast results, the longest match will be first. This should tell orientation 
 
-									#else:
-									#	if tabs[6]>tabs[7] and header+'_Reversed' not in expanded_clusters:
-									#		temp_species=header+'_Reversed'
-									#		expanded_clusters=expanded_clusters.split(header)[0]+temp_species+expanded_clusters.split(header)[1]
+										#else:
+										#	if tabs[6]>tabs[7] and header+'_Reversed' not in expanded_clusters:
+										#		temp_species=header+'_Reversed'
+										#		expanded_clusters=expanded_clusters.split(header)[0]+temp_species+expanded_clusters.split(header)[1]
 
-									#	else:
-									#		temp_species=header
+										#	else:
+										#		temp_species=header
 
-										if abs(c_score-1)>= difference[2]:
-											difference[2] = abs(c_score-1)
-											difference[3] = temp_species
+											if abs(c_score-1)>= difference[2]:
+												difference[2] = abs(c_score-1)
+												difference[3] = temp_species
 
 
-										if float(tabs[2]) <= difference[0]:
-											difference[0] = float(tabs[2])
-											difference[1] = temp_species
-						
-						if matches_longest==False and header.replace('\n','') not in longest_elem[1]:
-							genes_not_present+=1
-							new_cluster.append(header)
-							difference[4]+=header+' '
+											if float(tabs[2]) <= difference[0]:
+												difference[0] = float(tabs[2])
+												difference[1] = temp_species
+							
+							if matches_longest==False and header.replace('\n','') not in longest_elem[1]:
+								genes_not_present+=1
+								new_cluster.append(header)
+								difference[4]+=header+' '
 
 					#####################################################################################################
-					if i==0:				############## Write expanded to all_expanded
-						string='\n--------h_i_h_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3] 
-					elif i==1:
-						string='\n--------h_i_l_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3]	
-					elif i==2:
-						string='\n--------l_i_h_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3]
-					
-					if difference[4] == ' gene(s) do not match: ':
-						expanded_clusters=string+'\n'+expanded_clusters
-					else:
-						expanded_clusters=string+' '+str(genes_not_present)+difference[4]+'\n'+'\n'+expanded_clusters
-
-					all_expanded.append(expanded_clusters)
+					if expanded:
+						string=''
+						if i==0:				############## Write expanded to all_expanded
+							string='\n--------h_i_h_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3] 
+						elif i==1:
+							string='\n--------h_i_l_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3]	
+						elif i==2:
+							string='\n--------l_i_h_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3]
+						if difference[4] == ' gene(s) do not match: ':
+							expanded_clusters=string+'\n'+expanded_clusters
+						else:
+							expanded_clusters=string+' '+str(genes_not_present)+difference[4]+'\n'+'\n'+expanded_clusters
+						all_expanded.append(expanded_clusters)
 					cluster_present.append(temp_array)
 		
 					for sample in file: #add longest element to an output list
@@ -674,7 +742,7 @@ class clusterApp():
 			i+=1
 
 		a=0
-		with open('high_quality_clustered_genes.fasta', 'w') as outfilewriter:		
+		with open(high_quality_clustered_genes_file, 'w') as outfilewriter:		
 			while a<len(to_write): #outputs the clusters
 				try:
 					if "h_i_h_c_" in str(to_write[a].id) or "singleton_" in str(to_write[a].id):
@@ -689,7 +757,7 @@ class clusterApp():
 			outfilewriter.close()
 		
 		a=0
-		with open('all_clustered_genes.fasta', 'w') as file:	
+		with open(all_genes_file , 'w') as file:	
 			while a<len(to_write): #outputs the clusters
 				try:
 					file.write(">"+str(to_write[a].id)+"\n")
@@ -701,7 +769,7 @@ class clusterApp():
 				a+=1
 			file.close()
 
-		outfilewriter= open('cluster_pres_abs.txt', 'w') #writes the pres/ abs table
+		outfilewriter= open(pres_abs_file, 'w') #writes the pres/ abs table
 		x= len(species_list)+1
 		temp_string ="Cluster vs species\t"
 		for species in species_list:
@@ -724,14 +792,16 @@ class clusterApp():
 			with open('clusters_examined.txt', 'w') as outfilewriter:
 				outfilewriter.writelines(clusters_to_write)
 				outfilewriter.close()
-				
-		with open('expanded_clusters.txt','w') as file:
-			file.writelines(all_expanded)
-			file.close()
+		
+		if expanded:	
+			with open(expanded_clusters_file,'w') as file:
+				file.writelines(all_expanded)
+				file.close()
 
 		print '-'*30
 		print '-'*30
 		
 	
-			
+			###76_fo_lag_Lag11_MIMP_TIR_20_elements
+			###76_fo_lag_Lag11_MIMP_TIR_20_elements.fasta
 			
