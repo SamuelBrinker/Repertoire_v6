@@ -6,8 +6,21 @@ class mimp_finderApp():
 	def __init__(self):
 		self.verbose = False
 
-	def start(self, directory_folder, working, seed_mimp="MIMP_TIR.fasta", cut_off=400, distance=2500, maxeval=1, maxdist=10000, mincov=1, force=True):
-		if working[-1]=='/':
+	def start(self, force, directory_folder, working, seed_mimp="MIMP_TIR.fasta", cut_off=400, distance=2500, maxeval=1, maxdist=10000, mincov=.9):
+		
+		if '../' in directory_folder or directory_folder[0] !='/':
+			dir = os.path.dirname(__file__)
+			directory_folder = os.path.join(dir, directory_folder)
+
+		if '../' in working or working[0] !='/':
+			dir = os.path.dirname(__file__)
+			working = os.path.join(dir, working)
+		if '../' in seed_mimp or seed_mimp[0] !='/':
+			dir = os.path.dirname(__file__)
+			seed_mimp = os.path.join(dir, seed_mimp)
+
+
+		if working[-1]=='/' :
 			working=working[:-1]
 		
 		if directory_folder[-1]!='/':
@@ -42,7 +55,7 @@ class mimp_finderApp():
 					with open(stream_path, 'w') as stream:
 						stream.close()
 					print("\\ Processing "+str(file))
-					bashCommand = "tirmite --alnFile "+seed_mimp+" --alnFormat fasta --stableReps 2 --outdir tirmite_mimps -v --maxeval "+maxeval+" --maxdist "+ maxdist+" --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0] +" --mincov "+mincov)
+					bashCommand = "tirmite --alnFile "+str(seed_mimp)+" --alnFormat fasta --stableReps 2 --outdir tirmite_mimps -v --maxeval "+str(maxeval)+" --maxdist "+ str(maxdist)+" --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0] +" --mincov "+str(mincov))
 					subprocess.check_output(['bash','-c', bashCommand])
 
 				
@@ -51,17 +64,18 @@ class mimp_finderApp():
 
 
 					try:
-						with open("tirmite_mimps/"+str(file.split(".fasta")[0])+"_MIMP_TIR_elements.fasta", 'r') as f:
+						with open("tirmite_mimps/"+str(file.split(".fasta")[0])+"_"+seed_mimp.split(".")[0].split('/')[-1]+"_elements.fasta", 'r') as f:
 							tir_elements=f.readlines()
 							f.close()
 					except:
+						#print file
 						try: 
-							with open("tirmite_mimps/"+str(file.split(".fasta")[0]).replace('-','')+"_MIMP_TIR_elements.fasta", 'r') as f:
+							with open("tirmite_mimps/"+str(file.split(".fasta")[0]).replace('-','')+"_"+seed_mimp.split(".")[0].split('/')[-1]+"_elements.fasta", 'r') as f:
 								tir_elements=f.readlines()
 								f.close()
 						except:
 
-							with open("tirmite_mimps/"+str(file.split(".fasta")[0]).replace('-','').replace(':','').replace('.','')+"_MIMP_TIR_elements.fasta", 'r') as f:
+							with open("tirmite_mimps/"+str(file.split(".fasta")[0]).replace('-','').replace(':','').replace('.','')+"_"+seed_mimp.split(".")[0].split('/')[-1]+"_elements.fasta", 'r') as f:
 								tir_elements=f.readlines()
 								f.close()
 					
@@ -113,11 +127,11 @@ class mimp_finderApp():
 									to_end=len(genome[i+1])-1								
 								x='a'
 								if start!=to_start:
-									up_down_stream.append(elem.split("_MIMP_TIR_")[0]+"_"+contig_to_examin+"_upstream_region:"+str(to_start+1)+'_'+str(start+1)+"\n")
+									up_down_stream.append(elem.split(seed_mimp.split(".")[0].split('/')[-1])[0]+"_"+contig_to_examin+"_upstream_region:"+str(to_start+1)+'_'+str(start+1)+"\n")
 									x=genome[i+1][to_start:start]
 									up_down_stream.append(x+'\n')
 								if to_end!=end:
-									up_down_stream.append(elem.split("_MIMP_TIR_")[0]+"_"+contig_to_examin+"_downstream_region:"+str(end+1)+'_'+str(to_end+1)+"\n")
+									up_down_stream.append(elem.split(seed_mimp.split(".")[0].split('/')[-1])[0]+"_"+contig_to_examin+"_downstream_region:"+str(end+1)+'_'+str(to_end+1)+"\n")
 									up_down_stream.append(genome[i+1][end:to_end]+'\n')
 								if x=="":
 									print "Error"

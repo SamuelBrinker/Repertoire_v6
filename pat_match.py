@@ -23,6 +23,11 @@ class pat_matchApp():
 
 	def start(self, inputfile, outputfile='pat_match_output.txt'):
 
+		if '../' in inputfile or inputfile[0]!='/':
+			dir = os.path.dirname(__file__)
+			inputfile = os.path.join(dir, inputfile)
+
+
 		path = os.getcwd()
 
 		with open(inputfile, 'r') as f:
@@ -84,6 +89,4 @@ class pat_matchApp():
 		    		output.write(gene+'\n')
 		    output.close()
 	
-
-				    
 

@@ -66,12 +66,31 @@ class pres_abs_varApp():
 		self.verbose = False
 
 
-	def start(self, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80, force = True, show_all=False):
+	def start(self,force,show_all, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80):
 
 	### arguments being passed from pipeline script: ###
+		if '../' in queryfile or queryfile[0]!='/':
+			dir = os.path.dirname(__file__)
+			queryfile = os.path.join(dir, queryfile)
+		if '../' in genome_folder or genome_folder[0]!='/':
+			dir = os.path.dirname(__file__)
+			genome_folder = os.path.join(dir, genome_folder)
+		if '../' in blastdatabasedir or blastdatabasedir[0]!='/':
+			dir = os.path.dirname(__file__)
+			blastdatabasedir = os.path.join(dir, blastdatabasedir)
+		if '../' in BLASTbindir or BLASTbindir[0]!='/':
+			dir = os.path.dirname(__file__)
+			BLASTbindir = os.path.join(dir, BLASTbindir)
+		if '../' in outputdir or outputdir[0]!='/':
+			dir = os.path.dirname(__file__)
+			outputdir = os.path.join(dir, outputdir)
+		if '../' in r_location or r_location[0]!='/':
+			dir = os.path.dirname(__file__)
+			r_location = os.path.join(dir, r_location)
+
 		if outputdir[-1]=="/":
 			outputdir=outputdir[:-1]
-		if genome_folder[-1]=="/":
+		if str(genome_folder[-1])=="/":
 			genome_folder=genome_folder[:-1]
 		if queryfile[-1]=="/":
 			queryfile=queryfile[:-1]

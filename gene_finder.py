@@ -315,9 +315,16 @@ class gene_finderApp():
 
 	def __init__(self):
 		self.verbose = False
-	def start(self, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, force = True):
+	def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45):
 
 	#####################
+		if '../' in directory_folder or directory_folder[0]!='/':
+			dir = os.path.dirname(__file__)
+			directory_folder = os.path.join(dir, directory_folder)
+		if '../' in output_dir or output_dir[0]!='/':
+			dir = os.path.dirname(__file__)
+			output_dir = os.path.join(dir, output_dir)
+
 		if directory_folder[-1]=="/":
 			directory_folder=directory_folder[:-1]
 		if output_dir[-1]=="/":

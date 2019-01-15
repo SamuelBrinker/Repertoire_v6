@@ -16,10 +16,10 @@ def mimp_finderParser(subparsers):
   mimp_finder_parser.add_argument('-w', '--work', help="working directory", dest='working', type=str)
   mimp_finder_parser.add_argument('-s', '--seed', help='Seeder mimps for TIRmite, use MIMP_TIR.fasta file', dest='seed_mimp', type=str, default='MIMP_TIR.fasta')
   mimp_finder_parser.add_argument('-d', '--distance', help='distance up/downstream that is recorded', dest='distance', type=int, default=2500)
-  mimp_finder_parser.add_argument('-me', '--maxeval', help='max e_value for TIRmite, default=1', dest='maxeval', type=int, default=1)
+  mimp_finder_parser.add_argument('-me', '--maxeval', help='max e_value for TIRmite, default=1', dest='maxeval', type=float, default=1)
   mimp_finder_parser.add_argument('-md', '--maxdist', help='max distance between TIRs in TIRmite, default=10000', dest='maxdist', type=int, default=10000)
-  mimp_finder_parser.add_argument('-mc', '--mincov', help='minimum coverage of found TIRs to reference TIRs, default=.9', dest='mincov', type=int, default=.9)
-  mimp_finder_parser.add_argument('-f', '--force', help='allow program to rewrite over old data, default=True', dest='force', type=bool, default=True)
+  mimp_finder_parser.add_argument('-mc', '--mincov', help='minimum coverage of found TIRs to reference TIRs, default=.9', dest='mincov', type=float, default=.9)
+  mimp_finder_parser.add_argument('-f', '--force', help='do not allow program to rewrite over old data', dest='force',action='store_false')
 
 
   return mimp_finder_parser
@@ -31,7 +31,7 @@ class mimp_finderCMD:
 
   def execute(self, args):
     app = mimp_finder.mimp_finderApp()
-    return app.start(args.directory_folder,args.working, args.seed_mimp, args.cut_off, args.distance, args.maxeval, args.maxdist, args.mincov,args.force)
+    return app.start(args.force, args.directory_folder,args.working, args.seed_mimp, args.cut_off, args.distance, args.maxeval, args.maxdist, args.mincov)
     # maxeval=1, maxdist=10000, mincov=.9
 def gene_finderParser(subparsers):
   gene_finder_parser = subparsers.add_parser('gene_finder', help='gene_finder finds effectors / genes using given sequence data')
@@ -42,7 +42,7 @@ def gene_finderParser(subparsers):
   gene_finder_parser.add_argument('-d2m', '--max_d2m', help='max distance between mimp TIR and the first amino acid', dest='max_d2m', type=str, default=2500)
   gene_finder_parser.add_argument('-s', '--signalp', help='directory of the signalp file', dest='SignalPpath', type=str, default='signalP')
   gene_finder_parser.add_argument('-sp', '--SignalP_threshold', help='minimum score that will result in a positive prediction of a signal peptide, default .45', dest='SignalP_threshold', type=float, default= .45)
-  gene_finder_parser.add_argument('-f', '--force', help='allow program to rewrite over old data, default=True', dest='force', type=bool, default=True)
+  gene_finder_parser.add_argument('-f', '--force', help='do not allow program to rewrite over old data', dest='force',action='store_false')
 
   return gene_finder_parser
 
@@ -53,20 +53,20 @@ class gene_finderCMD:
 
   def execute(self, args):
     app = gene_finder.gene_finderApp()
-    return app.start(args.directory_folder, args.output_dir, args.SignalPpath, args.min_prot_len, args.max_d2m, args.max_prot_len, args.SignalP_threshold, args.force)
+    return app.start(args.force, args.directory_folder, args.output_dir, args.SignalPpath, args.min_prot_len, args.max_d2m, args.max_prot_len, args.SignalP_threshold)
 
 def pres_abs_varParser(subparsers):
   pres_abs_var_parser = subparsers.add_parser('pres_abs_var', help='pres_abs_var makes a presence absence sheet using target sequences and genomes of interest')
   pres_abs_var_parser.add_argument('-q', '--queryfile', help='file containing genes of interest', dest='queryfile', type=str)
   pres_abs_var_parser.add_argument('-g', '--genome_folder', help='folder containing all genomes to be examined', dest='genome_folder', type=str)
   pres_abs_var_parser.add_argument('-bd', '--blastdb', help='a folder where all blasted files can be stored to', dest='blastdatabasedir', type=str)
-  pres_abs_var_parser.add_argument('-b', '--blastbin', help='BLASTbindir (i.e. /usr/local/bin)', dest='BLASTbindir', type=str)
+  pres_abs_var_parser.add_argument('-b', '--blastbin', help='BLASTbindir (i.e. /usr/local/bin)', dest='BLASTbindir', type=str, default='bin')
   pres_abs_var_parser.add_argument('-o', '--out', help='Output directory', dest='outputdir', type=str)
   pres_abs_var_parser.add_argument('-p', '--perc', help='The minimum percent of shared identity between two sequences needed for the two to be examined, defaults to 80', type=int, dest='PERC_IDENTITY_THRESH', default=80)
   pres_abs_var_parser.add_argument('-d', '--database', help='Build blastdb, yes/no', dest='buildblastdb', type=str, default='yes')
   pres_abs_var_parser.add_argument('-r', '--r_location', help='path to R script', dest='r_location', type=str)
-  pres_abs_var_parser.add_argument('-f', '--force', help='allow program to rewrite over old data, default=True', dest='force', type=bool, default=True)
-  pres_abs_var_parser.add_argument('-s', '--show', help="True/False, if False a gene is present/absent in all genomes won't be shown, default=False", dest='show_all', type=bool, default=False)
+  pres_abs_var_parser.add_argument('-f', '--force', help='do not allow program to rewrite over old data', dest='force',action='store_false')
+  pres_abs_var_parser.add_argument('-s', '--show', help="gene is present/absent in all genomes will be shown", dest='show_all',action='store_true')
 
   return pres_abs_var_parser
 
@@ -77,24 +77,29 @@ class pres_abs_varCMD:
 
   def execute(self, args):
     app = pres_abs_var.pres_abs_varApp()
-    return app.start(args.queryfile, args.genome_folder, args.blastdatabasedir, args.BLASTbindir, args.outputdir, args.buildblastdb, args.r_location, args.PERC_IDENTITY_THRESH, args.force, args.show_all)
+    return app.start(args.force, args.show_all,args.queryfile, args.genome_folder, args.blastdatabasedir, args.BLASTbindir, args.outputdir, args.buildblastdb, args.r_location, args.PERC_IDENTITY_THRESH)
 
 
 def clusterParser(subparsers):
   cluster_parser = subparsers.add_parser('cluster', help='takes sequences and clusters them')
   cluster_parser.add_argument('-i', '--infile', help='the file all_putative_genes_concatenated.fasta file generated from the gene finder program', dest='infile', type=str)
   cluster_parser.add_argument('-bd', '--blastdir', help='a folder where all blasted files can be stored to', dest='blastdatabasedir', type=str)
-  cluster_parser.add_argument('-dc', '--leave', help='input TRUE if you are clustering a clustered file that does not contain any description, but only a .id, default=FALSE', dest='leave_put_eff_identifiers_during_clustering', type=str, default="TRUE")
-  cluster_parser.add_argument('-b', '--BLASTbindir', help='BLASTbindir (i.e. /usr/local/bin)', dest='BLASTbindir', type=str)
+  cluster_parser.add_argument('-dc', '--leave', help='input TRUE if you are clustering a clustered file that does not contain any description, but only a .id, default=FALSE', dest='leave_put_eff_identifiers_during_clustering',  action='store_true')
+  cluster_parser.add_argument('-b', '--BLASTbindir', help='BLASTbindir (i.e. /usr/local/bin)', dest='BLASTbindir', type=str, default='bin')
   cluster_parser.add_argument('-x', '--examine', help='file containing clusters / sequences to examine further', dest='examin', type=str, default="")
   cluster_parser.add_argument('-e', '--e_value', help='the minimum e value for BLAST, default to .001', dest='E_VALUE_THRESH', type=float, default=.001)
   cluster_parser.add_argument('-p', '--percent', help='the minimum percent of shared identity between two sequences needed for the two to be clustered, defaults to 90', type=int, dest='PERC_IDENTITY_THRESH', default=90.0)
-  cluster_parser.add_argument('-t', '--ll_thresh', help='bare minimum of overlap needed for clustering, default=.25', dest='low_length_thresh', type=float, default=.50)
+  cluster_parser.add_argument('-lt', '--ll_thresh', help='bare minimum of overlap needed for clustering, default=.25', dest='low_length_thresh', type=float, default=.50)
   cluster_parser.add_argument('-w', '--low_identity', help='bare minimum of identity needed to for clustering, default=50', dest='low_identity', type=int, default=70)
   cluster_parser.add_argument('-l', '--length_thresh', help='minimum amount of overlap two sequences need to have to cluster, default =.9', dest='LENGTH_THRESH', type=float, default=.9)
-  cluster_parser.add_argument('-cn', '--check_n', help='remove sequences the have more than x percentage of Ns, defaults to True', dest='check_n', type=bool, default=True)
+  cluster_parser.add_argument('-cn', '--check_n', help='do not remove sequences the have more than x percentage of Ns', dest='check_n',action='store_false')
   cluster_parser.add_argument('-n', '--allowed', help='max percentage of Ns that are allowed in a sequence file', dest='n_allowed', type=float, default=0)
-  cluster_parser.add_argument('-f', '--force', help='allow program to rewrite over old data, default=True', dest='force', type=bool, default=True)
+  cluster_parser.add_argument('-f', '--force', help='do not allow program to rewrite over old data', dest='force',action='store_false')
+  cluster_parser.add_argument('-hi', '--hilc', help='generates high identity, low coverage clusters', dest='hilc', action='store_true')
+  cluster_parser.add_argument('-li', '--lihc', help='generates low identity, high coverage clusters', dest='lihc', action='store_true')
+  cluster_parser.add_argument('-j', '--expanded', help='generates expanded clusters', dest='expanded', action='store_true')
+  cluster_parser.add_argument('-t', '--threads', help='number of threads to run blast with', dest='threads', type=int, default=1)
+  cluster_parser.add_argument('-nm', '--align', help='Show alignments for this number of database sequences', dest='alignments', type=int, default=250)
 
 ################
 ################
@@ -107,7 +112,7 @@ class clusterCMD:
 
   def execute(self, args):
     app = cluster.clusterApp()
-    return app.start(args.infile, args.blastdatabasedir, args.BLASTbindir, args.PERC_IDENTITY_THRESH,args.leave_put_eff_identifiers_during_clustering, args.E_VALUE_THRESH,args.examin, args.low_length_thresh, args.low_identity, args.LENGTH_THRESH, args.n_allowed, args.check_n, args.force) #args.all_data)
+    return app.start(args.infile, args.blastdatabasedir, args.BLASTbindir,args.check_n, args.force, args.lihc, args.hilc, args.expanded, args.PERC_IDENTITY_THRESH,args.leave_put_eff_identifiers_during_clustering, args.E_VALUE_THRESH,args.examin, args.low_length_thresh, args.low_identity, args.LENGTH_THRESH, args.n_allowed, args.threads, args.alignments) #args.all_data)
 
 def extractParser(subparsers):
   cluster_parser = subparsers.add_parser('extract', help='input representative clusters and receive the elements of the cluster')

@@ -8,13 +8,23 @@ class extractApp():
 
 
 	def start(self, database, expanded, to_examine):
-		
+
+		if '../' in database or database[0]!='/':
+			dir = os.path.dirname(__file__)
+			database = os.path.join(dir, database)
+		if '../' in expanded or expanded[0]!='/':
+			dir = os.path.dirname(__file__)
+			expanded = os.path.join(dir, expanded)
+		if '../' in to_examine or to_examine[0]!='/':
+			dir = os.path.dirname(__file__)
+			to_examine = os.path.join(dir, to_examine)
+
 		infile_filename = expanded.split('/')[-1]
 		infiledir = expanded.split(infile_filename)[0]
 		extracted_path=infiledir+'extracted_genes/'
 		if not os.path.exists(extracted_path):
 			os.makedirs(extracted_path)	
-
+		print extracted_path
 		with open(to_examine, 'r') as file:
 			all_examine=file.readlines()
 			file.close()
@@ -46,7 +56,7 @@ class extractApp():
 		record=False
 		y=0
 		t=True
-		#print examin_headers[:4]
+		print examin_headers[:4]
 		for header in examin_headers:
 			
 			for line in all_exapnded:
@@ -103,6 +113,7 @@ class extractApp():
 
 		#print [clustered_headers[-1][0]]
 		print [all_genes[0]]
+		print len(all_genes)
 
 		reverse=False
 		check=True
@@ -148,6 +159,7 @@ class extractApp():
 					x+=1
 				z+=1
 			if cluster != []:
+				#print extracted_path
 				with open(extracted_path+cluster[0].replace('\n','')+'_extracted.fasta','w') as file:
 					file.write(to_write)
 					file.close
