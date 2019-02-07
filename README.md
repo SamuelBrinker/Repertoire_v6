@@ -100,6 +100,9 @@ Cluster takes sequences and groups them together based on coverage and identity 
 
 -j generates expanded clusters
 
+-t number of threads to run blast with
+
+-nm each sequence can gnerate this number of blast hits. Default is 250 hits
 
 
 extract:
@@ -110,9 +113,36 @@ Extract allows the user to submit the header of a sequence of interest and retri
 
 -d the file containing all of the preclustered genes. Ex the file all_putative_effectors_concatenated.fasta generated from the mimp finder program.
 
--x a file containing all genes you wish to examine
+-x a file containing all genes you wish to examine 
 
 
+
+
+Merge:
+
+Merge can be used to sort sequences into predtermined clusters. Users submit the sequences to be merged, all sequences present in the clusters, and the expanded_clusters file and returns the clusters with the sequences sorted in, file showing how many sequences were sorted into each cluster, a list of sequences that could not be merged, and a tab deliminated summary file in which the first column contains the ID of the unknown sequence, the second column has ID of the cluster representative, the third column is % identity, the fourth column is the alignment length, the fifth column is % coverage query/subject, and the sixth column is % coverage subject/query. 
+
+-c location of cluster sequences
+
+-i file containing sequences to merge in with clusters
+
+-t number of threads to run blast with
+
+-a each sequence can gnerate this number of blast hits. Default is 3 hits
+
+-b BLASTbindir
+
+-bd a folder where all blasted files can be stored to
+
+-e the minimum e value for BLAST, default to .001
+
+-p the minimum percent of shared identity between two sequences needed for the two to be clustered, defaults to 80
+
+-l minimum amount of overlap two sequences need to have to cluster, default =.8
+
+-f do not allow program to rewrite over old data
+
+-ex location of the expanded file for the cluster
 
 
 
