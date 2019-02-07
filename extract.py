@@ -24,7 +24,9 @@ class extractApp():
 		extracted_path=infiledir+'extracted_genes/'
 		if not os.path.exists(extracted_path):
 			os.makedirs(extracted_path)	
-		print extracted_path
+
+		print extracted_path, "test'"
+
 		with open(to_examine, 'r') as file:
 			all_examine=file.readlines()
 			file.close()
@@ -56,7 +58,7 @@ class extractApp():
 		record=False
 		y=0
 		t=True
-		print examin_headers[:4]
+		#print examin_headers[:4]
 		for header in examin_headers:
 			
 			for line in all_exapnded:
@@ -91,7 +93,9 @@ class extractApp():
 						record=True
 		clustered_headers.append(clusters)	
 
-		#print len(clustered_headers)
+		#print clustered_headers
+		print len(clustered_headers)
+		print len(clustered_headers[0])
 
 
 		with open(database,'r') as file:
@@ -100,7 +104,7 @@ class extractApp():
 
 		record=False
 		#print clustered_headers[:2]
-		#print len(clustered_headers)
+		print len(clustered_headers)
 		
 		
 		to_edit = all_genes
@@ -123,13 +127,18 @@ class extractApp():
 
 			while z<len(cluster):
 				x=0
-				
-				if '_Reversed' in cluster[z]:
+				if '63_fo_mel_Fom013_contig_1806:3631-3882' in cluster[z]:
+					print "ahhhhhh"
+					print cluster[z]
+
+				if '_Reversed' in cluster[z].replace('\n',''):
 					reverse=True
 					to_reverse=''
 				while x<len(all_genes):
 
 					if record==True and reverse==False:	
+						if '63_fo_mel_Fom013_contig_1806:3631-3882' in cluster[z]:
+							print "ahhhhhh"
 						if '>' in all_genes[x]:
 							record=False
 							to_write+='\n'							
@@ -149,11 +158,11 @@ class extractApp():
 							
 					if reverse==True:
 
-						if ">"+cluster[z].split('_Reversed')[0] == all_genes[x].split(" ")[0] and cluster[z]!='\n':
+						if ">"+cluster[z].split('_Reversed')[0] == all_genes[x].split(" ")[0].replace('\n','') and cluster[z]!='\n':
 							to_write+='>'+cluster[z]
 							record=True
 					else:
-						if ">"+cluster[z].replace('\n',"") == all_genes[x].split(" ")[0] and cluster[z]!='\n':
+						if ">"+cluster[z].replace('\n',"") == all_genes[x].split(" ")[0].replace('\n','') and cluster[z]!='\n':
 							to_write+='>'+cluster[z]
 							record=True
 					x+=1

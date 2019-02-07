@@ -66,7 +66,11 @@ def remove_n(infile, n_allowed):
 
 
 def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, LENGTH_THRESH, blastdatabasedir, BLASTbindir, infiledir, low_identity, low_length_thresh, lihc, hilc,all_clusters, alignments):
-	database_store = blastdatabasedir+'/'+infile.split('/')[-1].split('.fa')[0]
+	
+	if '/' in infile and infile[-1] !='/':
+		database_store = blastdatabasedir+'/'+infile.split('/')[-1].split('.fa')[0]
+	else:
+		database_store = blastdatabasedir+'/'+infile.split('.fa')[0]
 
 
 	with open(infile,'r') as file:

@@ -8,6 +8,7 @@ import cluster #02
 import mimp_finder #0
 import extract
 import pat_match
+import merge
 
 def mimp_finderParser(subparsers):
   mimp_finder_parser = subparsers.add_parser('mimp_finder', help='mimp_finder finds TIR elements in a genome and records regions up/down stream of them')
@@ -92,7 +93,7 @@ def clusterParser(subparsers):
   cluster_parser.add_argument('-lt', '--ll_thresh', help='bare minimum of overlap needed for clustering, default=.25', dest='low_length_thresh', type=float, default=.50)
   cluster_parser.add_argument('-w', '--low_identity', help='bare minimum of identity needed to for clustering, default=50', dest='low_identity', type=int, default=70)
   cluster_parser.add_argument('-l', '--length_thresh', help='minimum amount of overlap two sequences need to have to cluster, default =.9', dest='LENGTH_THRESH', type=float, default=.9)
-  cluster_parser.add_argument('-cn', '--check_n', help='do not remove sequences the have more than x percentage of Ns', dest='check_n',action='store_false')
+  cluster_parser.add_argument('-cn', '--check_n', help='do not remove sequences the have more than (-n) percentage of Ns', dest='check_n',action='store_true')
   cluster_parser.add_argument('-n', '--allowed', help='max percentage of Ns that are allowed in a sequence file', dest='n_allowed', type=float, default=0)
   cluster_parser.add_argument('-f', '--force', help='do not allow program to rewrite over old data', dest='force',action='store_false')
   cluster_parser.add_argument('-hi', '--hilc', help='generates high identity, low coverage clusters', dest='hilc', action='store_true')
@@ -148,6 +149,32 @@ class pat_matchCMD:
     app = pat_match.pat_matchApp()
     return app.start(args.inputfile, args.outputfile)
    
+def mergeParser(subparsers):
+  merge_parser = subparsers.add_parser('merge', help='Will take a list of sequences and a list of clusters and merge the two together')
+  merge_parser.add_argument('-c', '--cluster', help='location of clusters', dest='clusters', type=str)
+  merge_parser.add_argument('-i', '--infile', help='file containing sequences to merge in with clusters', dest='infile', type=str)
+  merge_parser.add_argument('-t', '--threads', help='number of threads to run blast with', dest='threads', type=int, default=1)
+  merge_parser.add_argument('-a', '--align', help='Show alignments for this number of database sequences', dest='alignments', type=int, default=3)
+  merge_parser.add_argument('-b', '--BLASTbindir', help='BLASTbindir (i.e. /usr/local/bin)', dest='BLASTbindir', type=str, default='bin')
+  merge_parser.add_argument('-bd', '--blastdir', help='a folder where all blasted files can be stored to', dest='blastdatabasedir', type=str)
+  merge_parser.add_argument('-e', '--e_value', help='the minimum e value for BLAST, default to .001', dest='E_VALUE_THRESH', type=float, default=.001)
+  merge_parser.add_argument('-p', '--percent', help='the minimum percent of shared identity between two sequences needed for the two to be clustered, defaults to 80', type=int, dest='PERC_IDENTITY_THRESH', default=80.0)
+  merge_parser.add_argument('-l', '--length_thresh', help='minimum amount of overlap two sequences need to have to cluster, default =.8', dest='LENGTH_THRESH', type=float, default=.8)
+  merge_parser.add_argument('-f', '--force', help='do not allow program to rewrite over old data', dest='force',action='store_false')
+  merge_parser.add_argument('-ex', '--expanded', help='expanded file for the cluster', dest='expanded', type=str)
+
+  return merge
+
+class mergeCMD:
+  
+  def __init__(self):
+    pass
+
+  def execute(self, args):
+    app = merge.mergeApp()
+    #infile, clusters, blastdatabasedir,BLASTbindir, identity=80, coverage=80,E_VALUE_THRESH=.001,threads=1,alignments=1
+    return app.start(args.infile, args.clusters, args.expanded, args.blastdatabasedir, args.BLASTbindir, args.PERC_IDENTITY_THRESH, args.LENGTH_THRESH, args.E_VALUE_THRESH, args.threads, args.alignments, args.force)
+
 
 def parseArgs():
     parser = argparse.ArgumentParser(
@@ -159,6 +186,7 @@ def parseArgs():
     clusterParser(subparsers)
     extractParser(subparsers)
     pat_matchParser(subparsers)
+    mergeParser(subparsers)
     args = parser.parse_args()
     return args
 
@@ -172,7 +200,8 @@ def main():
     mimp_finder=mimp_finderCMD()
     extract=extractCMD()
     pat_match=pat_matchCMD()
-    commands = {'cluster': cluster, 'pres_abs_var': pres_abs_var, 'gene_finder': gene_finder, 'mimp_finder': mimp_finder, 'extract':extract, 'pat_match':pat_match}
+    merge=mergeCMD()
+    commands = {'merge':merge,'cluster': cluster, 'pres_abs_var': pres_abs_var, 'gene_finder': gene_finder, 'mimp_finder': mimp_finder, 'extract':extract, 'pat_match':pat_match}
     args = parseArgs()
     commands[args.command].execute(args)
 
