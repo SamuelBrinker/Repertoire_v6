@@ -100,7 +100,7 @@ Cluster takes sequences and groups them together based on coverage and identity 
 
 -j generates expanded clusters
 
--t number of threads to run blast with
+-t number of threads to run blast with, default =1
 
 -nm each sequence can gnerate this number of blast hits. Default is 250 hits
 
@@ -126,7 +126,7 @@ Merge can be used to sort sequences into predtermined clusters. Users submit the
 
 -i file containing sequences to merge in with clusters
 
--t number of threads to run blast with
+-t number of threads to run blast with, default =1
 
 -a each sequence can gnerate this number of blast hits. Default is 3 hits
 
