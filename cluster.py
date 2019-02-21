@@ -33,6 +33,9 @@ def remove_n(infile, n_allowed):
 		else:
 			temp_line+=line.replace('\n','')
 
+	if n_allowed >1:
+		n_allowed=float(n_allowed/100)
+
 	for line in fixed_fasta:
 		if '\n'!=line and ''!=line:
 			if sequence ==True:
@@ -663,7 +666,7 @@ class clusterApp():
 								difference[4]+=header+' '
 
 					#####################################################################################################
-					if expanded:
+					if expanded and longest_element[1] !='':
 						string=''
 						if i==0:				############## Write expanded to all_expanded
 							string='\n--------h_i_h_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3] 
