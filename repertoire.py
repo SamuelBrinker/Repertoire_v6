@@ -16,7 +16,7 @@ def mimp_finderParser(subparsers):
   mimp_finder_parser.add_argument('-dir', '--directory', help='Directory containing all genomes to be examined', dest='directory_folder', type=str)
   mimp_finder_parser.add_argument('-c', '--cut_off', help='Max length of TIR elements, default=400', dest='cut_off', type=int, default=400)
   mimp_finder_parser.add_argument('-w', '--work', help="Working directory", dest='working', type=str)
-  mimp_finder_parser.add_argument('-s', '--seed', help='A file containing example TIRs. TIRmite uses this to find similar TIRs throughout genomes.', dest='seed_mimp', type=str)
+  mimp_finder_parser.add_argument('-s', '--seed', help='A file containing example mimps. TIRmite uses this to find similar mimps throughout genomes.', dest='seed_mimp', type=str)
   mimp_finder_parser.add_argument('-d', '--distance', help='Distance up/downstream that is recorded, default=2500', dest='distance', type=int, default=2500)
   mimp_finder_parser.add_argument('-me', '--maxeval', help='Max e_value for TIRmite, default=1', dest='maxeval', type=float, default=1)
   mimp_finder_parser.add_argument('-md', '--maxdist', help='Max distance between TIRs in TIRmite, default=10000', dest='maxdist', type=int, default=10000)
