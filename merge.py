@@ -58,6 +58,9 @@ class mergeApp():
 		#attaches the sequnce to the sequence header
 		x=0
 		seq_cluster=list(SeqIO.parse(clusters, "fasta"))
+
+		#print len(seq_cluster)
+
 		updated_expanded_clusters=[]
 		temp_string=''
 		while x <len(expanded_clusters):
@@ -69,6 +72,11 @@ class mergeApp():
 			updated_expanded_clusters.append(temp_string)
 			temp_string=''
 			x+=1
+
+		#z=0
+		#for x in updated_expanded_clusters:
+		#	z+=x.count('cluster')
+		#print z
 
 
 		cmnd = BLASTbindir+'/makeblastdb -dbtype nucl -in '+clusters+' -out '+database_store
@@ -162,13 +170,20 @@ class mergeApp():
 						if str(cluster_seq.id) == c.split('_cluster')[0].split('>')[1]:
 							output_file[output_file.index(raw_line)]=line[0]+'\t'+str(c).replace('>','')+'\t'+line[2]+'\t'+str(line[3])+'\t'+str(line[4])+str(line[5])
 							if str(to_merge_seq.id) not in updated_expanded_clusters[x]:
-								updated_expanded_clusters[x]+='>'+str(to_merge_seq.id)+'_cluster'+c.split('_cluster')[1].split('\n')[0]+'\n'+str(to_merge_seq.seq)+'\n'
+								updated_expanded_clusters[x]+='>'+str(to_merge_seq.id)+'_new_to_cluster'+c.split('_cluster')[1].split('\n')[0]+'\n'+str(to_merge_seq.seq)+'\n'
 								#print 'test'
 							break
 
 				x+=1 
 
 		##############
+
+		x=0
+		cluster_counts=[]
+		while x<len(updated_expanded_clusters):
+			cluster_counts.append('cluster_'+str(x+1)+'\t'+str(updated_expanded_clusters[x].count('_new_to_cluster'))+'\n')
+			x+=1
+
 
 
 
@@ -236,14 +251,14 @@ class mergeApp():
 				x+=1
 
 		blast_results="blast_results_run1.txt"
-		summery="summery_run1.txt"
+		summery="summary_run1.txt"
 		not_merged_output="not_merged_run1.txt"
 		new_headers='new_cluster_names_run1.txt'
 		sorted_sequences='sorted_sequences_run1.fasta'
 		if force != True:
 			x=2
 			while os.path.isfile(summery) ==True and os.path.isfile(sorted_sequences) ==True and  os.path.isfile(blast_results) ==True and  os.path.isfile(not_merged_output) ==True and  os.path.isfile(new_headers) ==True:
-				summery="summery_run"+str(x)+'.txt'
+				summery="summary_run"+str(x)+'.txt'
 				blast_results="blast_results_run"+str(x)+'.txt'
 				not_merged_output="not_merged_run"+str(x)+".txt"
 				new_headers='new_cluster_names_run'+str(x)+'.txt'
@@ -267,7 +282,9 @@ class mergeApp():
 			with open(not_merged_output,'w') as file:
 				file.writelines(to_print_not_merged)
 				file.close()
-
+		with open('cluster_counts.txt','w') as file:
+			file.writelines(cluster_counts)
+			file.close()
 
 
 
