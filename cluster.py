@@ -151,8 +151,8 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 				q_score =abs((float(tabs[7]) - float(tabs[6]))/float(tabs[12])) #covereage calculated by q_score/s_score ratio
 				s_score =abs((float(tabs[9]) - float(tabs[8]))/float(tabs[13])) # the score value = the length of the matached section divided by the total length of the effector
 				
-
 				c_score=1
+
 				if i==0: #high_i_high_c, effectors have to be above the length identity threshold and above the coverage threshold
 					if float(tabs[2]) >= PERC_IDENTITY_THRESH and (c_score) >= (LENGTH_THRESH) and tabs[0]!=tabs[1] and q_score>LENGTH_THRESH and s_score>LENGTH_THRESH: #ignoes self matches
 						x=0
@@ -776,7 +776,7 @@ class clusterApp():
 				a+=1
 			file.close()
 
-		outfilewriter= open(pres_abs_file, 'w') #writes the pres/ abs table
+		#outfilewriter= open(pres_abs_file, 'w') #writes the pres/ abs table
 		x= len(species_list)+1
 		temp_string ="Cluster vs species\t"
 		for species in species_list:
