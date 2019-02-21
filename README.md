@@ -15,7 +15,7 @@ Signalp
 
 http://www.cbs.dtu.dk/services/SignalP/
 
-locla BLAST, R
+local BLAST, R
 
 
 Example: 
@@ -30,12 +30,17 @@ Mimp finder finds TIR elements in a genome and records regions up/down stream of
 
 -w working directory for the program
 
--s seeder mimps for TIRmite. This is a file containing known, example mimps for TIRmite to base its search on
+-s A file containing example mimps. TIRmite uses this to find similar mimps throughout genomes. 
 
 -d distance of the region up/downstream  of the mimp that is recorded that is recorded. This is the region that will be searched for effectors / genes
 
 -f do not allow program to rewrite over old data
 
+-md Max distance between TIRs in TIRmite, default=10000
+
+-mc Minimum coverage of found TIRs relative to reference TIRs needed to be considered, default=.9
+
+-me Max e_value for TIRmite, default=1
 
 
 
@@ -54,7 +59,7 @@ Gene finder finds genes or effectors using given sequence file. Genes must be en
 
 -d2m max distance between the start of the sequence and the first amino acid. Defaults to 2500
 
--s directory of the signalp file
+-s directory of signalP 
 
 -sp minimum score that will result in a positive prediction of a signal peptide. Defaults to .45
 
@@ -74,7 +79,7 @@ Cluster takes sequences and groups them together based on coverage and identity 
 
 -dc Data is a clustered file that does not contain any description, but only a .id. Defaults to false
 
--b BLASTbindir (i.e. /usr/local/bin)
+-b BLAST bin directory (i.e. /usr/local/bin)
 
 -x a fasta file containing clusters / sequences to examine further. Optional
 
@@ -98,7 +103,7 @@ Cluster takes sequences and groups them together based on coverage and identity 
 
 -li generates low identity, high coverage clusters
 
--j generates expanded clusters
+-j does not generates expanded clusters
 
 -t number of threads to run blast with, default =1
 
@@ -109,7 +114,7 @@ extract:
 
 Extract allows the user to submit the header of a sequence of interest and retrieve all of the sequences of all other genes it is clustered with.
 
--e the expanded_clusters.txt file generated from cluster
+-e the expanded_clusters.txt file generated from clustering
 
 -d the file containing all of the preclustered genes. Ex the file all_putative_effectors_concatenated.fasta generated from the mimp finder program.
 
@@ -122,15 +127,15 @@ Merge:
 
 Merge can be used to sort sequences into predtermined clusters. Users submit the sequences to be merged, all sequences present in the clusters, and the expanded_clusters file and returns the clusters with the sequences sorted in, file showing how many sequences were sorted into each cluster, a list of sequences that could not be merged, and a tab deliminated summary file in which the first column contains the ID of the unknown sequence, the second column has ID of the cluster representative, the third column is % identity, the fourth column is the alignment length, the fifth column is % coverage query/subject, and the sixth column is % coverage subject/query. 
 
--c location of cluster sequences
+-c Location of clustered sequences
 
--i file containing sequences to merge in with clusters
+-i File containing sequences to merge with clusters
 
 -t number of threads to run blast with, default =1
 
 -a each sequence can gnerate this number of blast hits. Default is 3 hits
 
--b BLASTbindir
+-b BLAST bin directory
 
 -bd a folder where all blasted files can be stored to
 
@@ -157,7 +162,7 @@ Presence absence variation takes a fasta file containing genes of interest and d
 
 -bd a folder where all blasted files can be stored to
 
--b BLASTbindir (i.e. /usr/local/bin)
+-b BLAST bin directory (i.e. /usr/local/bin)
 
 -o output directory
 
@@ -169,9 +174,17 @@ Presence absence variation takes a fasta file containing genes of interest and d
 
 -f do not allow program to rewrite over old data
 
--s gene is present/absent in all genomes will be shown
+-s Genes that are present/absent in all genomes will be shown. They are otherwise excluded from the presence absence table to save space
 
 
+
+Reformat
+
+Reformats fasta file(s)'s headers so that they can be processed by the mimp_finder program. This is useful for genomes pulled from places such as NCBI. 
+
+-i Location of a singular file to be reformated
+-id Add this to the start of each sequence in each fasta file. If left blank, will put file name in header. This is useful for adding unique distinguishing identifiers when doing multi-file comparisons.
+-fo Will reformat all fasta files in specified folder
 
 
 pat_match:
