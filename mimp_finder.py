@@ -1,5 +1,8 @@
 import os
 import subprocess
+from Bio.Seq import Seq
+from Bio import SeqIO
+
 
 class mimp_finderApp():
 
@@ -87,23 +90,28 @@ class mimp_finderApp():
 								elements_to_examin.append(elem)
 
 					up_down_stream=[]
-					genome=[]
+					#genome=[]
 
-					with open(directory_folder+file, 'r') as f:
-						genome=f.readlines()
-						f.close()
-
+					#with open(directory_folder+file, 'r') as f:
+					#	genome=f.readlines()
+					#	f.close()
+					genome = list(SeqIO.parse(str(directory_folder)+str(file), "fasta"))
 					i=0
 
 
 					for contig in genome:
 						for elem in elements_to_examin:
 							if ',' in elem:
+								contig_to_examin=elem.split(',:')[0].split('[')[1].split('_')[-2]+'_'+elem.split(',:')[0].split('[')[1].split('_')[-1]
+								'''
 								if 'unitig_' in elem:
 									contig_to_examin = "unitig_"+elem.split("unitig_")[1].split(",:")[0]
 								else:
 									contig_to_examin = "contig_"+elem.split("contig_")[1].split(",:")[0]
+								'''
 							else:
+								contig_to_examin=elem.split(':')[0].split('[')[1].split('_')[-2]+'_'+elem.split(':')[0].split('[')[1].split('_')[-1]
+								'''
 								if 'unitig_' in elem:
 									contig_to_examin = "unitig_"+elem.split("unitig_")[1].split(":")[0]
 								else:
@@ -118,33 +126,41 @@ class mimp_finderApp():
 												contig_to_examin = "scaffold_"+elem.split("scaffold_")[1].split(",:")[0]
 										except:
 											print elem
+								'''
+							#print contig.id
+							#print contig.seq[1:3]
+							if contig_to_examin in contig.id and str(contig.id).split(contig_to_examin)[1]=='':
+								start = int(elem.split(":")[1].split("_")[0])
+								end = int(elem.split(":")[1].split("_")[1].split(" ")[0])-1
 
-							if ('contig' in contig and contig_to_examin == str('contig_'+contig.split('contig_')[1].replace(',','').replace('\n',''))) or ('unitig' in contig and contig_to_examin == str('unitig'+contig.split('unitig_')[1].replace(',','').replace('\n',''))):
-								start = int(elem.split('contig')[1].split(":")[1].split("_")[0])-1
-								end = int(elem.split('contig')[1].split(":")[1].split("_")[1].split(" ")[0])-1
-
-								if start-distance>=0:
+								if start-distance>=1:
 									to_start=start-distance
 								else:
-									to_start=0
-								if end+distance<=len(genome[i+1]):
+									to_start=1
+
+								#raw_data = list(SeqIO.parse(file, "fasta"))
+						
+				
+
+								if end+distance<=len(str(contig.seq)):
 									to_end=end+distance
 								else:
-									to_end=len(genome[i+1])-1								
+									to_end=len(str(contig.seq))-1								
 								x='a'
 								if start!=to_start:
 									up_down_stream.append(elem.split(seed_mimp.split(".")[0].split('/')[-1])[0]+"_"+contig_to_examin+"_upstream_region:"+str(to_start+1)+'_'+str(start+1)+"\n")
-									x=genome[i+1][to_start:start]
+									x=str(contig.seq)[to_start:start]
 									up_down_stream.append(x+'\n')
 								if to_end!=end:
 									up_down_stream.append(elem.split(seed_mimp.split(".")[0].split('/')[-1])[0]+"_"+contig_to_examin+"_downstream_region:"+str(end+1)+'_'+str(to_end+1)+"\n")
-									up_down_stream.append(genome[i+1][end:to_end]+'\n')
+									up_down_stream.append(str(contig.seq)[end:to_end]+'\n')
+								sequence=''
 								if x=="":
 									print "Error"
-									print to_start, start
-									print end, to_end
-									print genome[i], contig_to_examin
-									print genome[i+1][0:3]
+									print to_start, start, "1"
+									print end, to_end, "2"
+									print contig.id, contig_to_examin, "3"
+									print str(contig.seq)[1:3], "4"
 									print genome[i+1][start]
 									print genome[i+1][end]
 									print genome[i+1][to_end]
