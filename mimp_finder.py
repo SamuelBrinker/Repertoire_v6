@@ -111,7 +111,13 @@ class mimp_finderApp():
 									try:
 										contig_to_examin = "contig_"+elem.split("contig_")[1].split(":")[0]
 									except:
-										print elem
+										try:
+											try:
+												contig_to_examin = "scaffold_"+elem.split("scaffold_")[1].split(":")[0]
+											except:
+												contig_to_examin = "scaffold_"+elem.split("scaffold_")[1].split(",:")[0]
+										except:
+											print elem
 
 							if ('contig' in contig and contig_to_examin == str('contig_'+contig.split('contig_')[1].replace(',','').replace('\n',''))) or ('unitig' in contig and contig_to_examin == str('unitig'+contig.split('unitig_')[1].replace(',','').replace('\n',''))):
 								start = int(elem.split('contig')[1].split(":")[1].split("_")[0])-1

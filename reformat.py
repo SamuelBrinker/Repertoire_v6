@@ -30,9 +30,9 @@ def reformat_file(infile, identification):
 			header=str(all_sequences[x].id)
 			stripped_header = ''.join(char for char in header if char in printable)
 			if identification !='':
-				new_header=identification+'_seq_'+str(y)
+				new_header=identification+'_contig_'+str(y)
 			else:
-				new_header=file_name+'_seq_'+str(y)
+				new_header=file_name+'_contig_'+str(y)
 			all_sequences[x].id=new_header
 			all_sequences[x].description=''
 			y+=1	
