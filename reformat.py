@@ -52,18 +52,29 @@ class reformatApp():
 		self.verbose = False
 
 
-	def start(self, infile='', folder='', identification=''): 
+	def start(self, infile='', folder='', identification='',working=''): 
+
+		if working!='':
+			if working[-1]!='/':
+				working+='/'
+			if '../' in working:
+				dir = os.path.dirname(__file__)
+				working = os.path.join(dir, working)
+			os.chdir(working)
+		else:
+			working=os.path.dirname(__file__)
 
 		if infile!='':
 			if '../' in infile or infile[0]!='/':
-				dir = os.path.dirname(__file__)
+				dir = os.path.dirname(working)
 				infile = os.path.join(dir, infile)
 			reformat_file(infile,identification)
 
 		if folder!='':
 			if '../' in folder or folder[0]!='/':
-				dir = os.path.dirname(__file__)
+				dir = os.path.dirname(working)
 				folder = os.path.join(dir, folder)
+				folder = os.path.abspath(os.path.realpath(folder))
 
 			files = os.listdir(folder)
 			for file in files:
