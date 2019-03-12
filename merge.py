@@ -6,26 +6,44 @@ class mergeApp():
 		self.verbose = False
 
 
-	def start(self,infile, clusters,expanded ,blastdatabasedir,BLASTbindir, identity=80, coverage=80,E_VALUE_THRESH=.001,threads=1,alignments=3, force=True):
+	def start(self,infile, clusters,expanded ,blastdatabasedir,BLASTbindir='', identity=80, coverage=80,E_VALUE_THRESH=.001,threads=1,alignments=3, force=True, working=''):
 
 		wd=os.getcwd()
 		print_not_merged=False
 
 		#check relative path
+		if working!='':
+			if '../' in working:
+				if working[-1]!='/':
+					working+='/'
+				dir = os.path.dirname(__file__)
+				working = os.path.join(dir, working)
+			os.chdir(working)
+		else:
+			working=os.path.dirname(__file__)
+
 		if '../' in infile or infile[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			infile = os.path.join(dir, infile)
 		if '../' in clusters or clusters[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			clusters = os.path.join(dir, clusters)
-		if '../' in BLASTbindir or BLASTbindir[0]!='/':
-			dir = os.path.dirname(__file__)
-			BLASTbindir = os.path.join(dir, BLASTbindir)
+			
+		if BLASTbindir !='':
+			if '../' in BLASTbindir or BLASTbindir[0]!='/':
+				dir = os.path.dirname(working)
+				BLASTbindir = os.path.join(dir, BLASTbindir)
+				BLASTbindir = os.path.abspath(os.path.realpath(BLASTbindir))
+			if BLASTbindir[:-1]!='/':
+				BLASTbindir+='/'
+
 		if '../' in blastdatabasedir or blastdatabasedir[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			blastdatabasedir = os.path.join(dir, blastdatabasedir)
+			blastdatabasedir = os.path.abspath(os.path.realpath(blastdatabasedir))
+
 		if '../' in expanded or expanded[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			expanded = os.path.join(dir, expanded)
 
 		if '/' in clusters and clusters[-1] !='/':
@@ -79,10 +97,10 @@ class mergeApp():
 		#print z
 
 
-		cmnd = BLASTbindir+'/makeblastdb -dbtype nucl -in '+clusters+' -out '+database_store
+		cmnd = BLASTbindir+'makeblastdb -dbtype nucl -in '+clusters+' -out '+database_store
 		print "---BLASTDB---\n", cmnd, os.system(cmnd), "---\n" #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
 		blastoutfilename = wd+'/'+infile.split('/')[-1].split('.fa')[0]+'.vs.'+clusters.split('/')[-1].split('.fa')[0]+'.blastout'
-		cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length qstart qend sstart send qlen slen' -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
+		cmnd = BLASTbindir+"blastn -outfmt '6 qseqid sseqid pident length qstart qend sstart send qlen slen' -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
 												#0		1		2		3	4		5	6		7	8	9
 		os.system(cmnd)
 	

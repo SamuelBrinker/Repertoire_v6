@@ -10,7 +10,7 @@ def BuildBlastDB(genome_folder, genome_fastafile, blastdatabasedir, BLASTbindir,
 	database_in = genome_folder+'/'+genome_fastafile
 	genome = genome_fastafile.split('.fa')[0]
 	database_store = blastdatabasedir + '/' + genome
-	cmnd = BLASTbindir+'/makeblastdb -dbtype nucl -in '+database_in+' -out '+database_store
+	cmnd = BLASTbindir+'makeblastdb -dbtype nucl -in '+database_in+' -out '+database_store
 	if buildblastdb == 'yes':
 		print ("/ ---BUILDING BLAST DB FROM FASTA FILE---")
 		print cmnd, os.system(cmnd)	
@@ -66,26 +66,48 @@ class pres_abs_varApp():
 		self.verbose = False
 
 
-	def start(self,force,show_all, queryfile, genome_folder, blastdatabasedir, BLASTbindir, outputdir, buildblastdb, r_location, PERC_IDENTITY_THRESH=80):
+	def start(self,force,show_all, queryfile, genome_folder, blastdatabasedir, outputdir, buildblastdb, r_location, BLASTbindir='', PERC_IDENTITY_THRESH=80, working=''):
 
 	### arguments being passed from pipeline script: ###
-		if '../' in queryfile or queryfile[0]!='/':
-			dir = os.path.dirname(__file__)
+		if working!='':
+			if working[-1]!='/':
+				working+='/'
+			if '../' in working:
+				dir = os.path.dirname(__file__)
+				working = os.path.join(dir, working)
+			os.chdir(working)
+		else:
+			working=os.path.dirname(__file__)
+		print os.getcwd()
+
+		if '../' in queryfile:
+			dir = os.path.dirname(working)
 			queryfile = os.path.join(dir, queryfile)
-		if '../' in genome_folder or genome_folder[0]!='/':
-			dir = os.path.dirname(__file__)
+		if '../' in genome_folder:
+			dir = os.path.dirname(working)
 			genome_folder = os.path.join(dir, genome_folder)
-		if '../' in blastdatabasedir or blastdatabasedir[0]!='/':
-			dir = os.path.dirname(__file__)
+			genome_folder = os.path.abspath(os.path.realpath(genome_folder))
+
+		if '../' in blastdatabasedir:
+			dir = os.path.dirname(working)
 			blastdatabasedir = os.path.join(dir, blastdatabasedir)
-		if '../' in BLASTbindir or BLASTbindir[0]!='/':
-			dir = os.path.dirname(__file__)
-			BLASTbindir = os.path.join(dir, BLASTbindir)
-		if '../' in outputdir or outputdir[0]!='/':
-			dir = os.path.dirname(__file__)
+			blastdatabasedir = os.path.abspath(os.path.realpath(blastdatabasedir))
+
+		if BLASTbindir !='':
+			if '../' in BLASTbindir or BLASTbindir[0]!='/':
+				dir = os.path.dirname(working)
+				BLASTbindir = os.path.join(dir, BLASTbindir)
+				BLASTbindir = os.path.abspath(os.path.realpath(BLASTbindir))
+			if BLASTbindir[:-1]!='/':
+				BLASTbindir+='/'
+
+		if '../' in outputdir:
+			dir = os.path.dirname(working)
 			outputdir = os.path.join(dir, outputdir)
-		if '../' in r_location or r_location[0]!='/':
-			dir = os.path.dirname(__file__)
+			outputdir = os.path.abspath(os.path.realpath(outputdir))
+
+		if '../' in r_location:
+			dir = os.path.dirname(working)
 			r_location = os.path.join(dir, r_location)
 
 		if outputdir[-1]=="/":

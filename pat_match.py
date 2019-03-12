@@ -21,10 +21,20 @@ class pat_matchApp():
 	def __init__(self):
 		self.verbose = False
 
-	def start(self, inputfile, outputfile='pat_match_output.txt'):
+	def start(self, inputfile, outputfile='pat_match_output.txt', working=''):
+
+		if working!='':
+			if working[-1]!='/':
+				working+='/'
+			if '../' in working:
+				dir = os.path.dirname(__file__)
+				working = os.path.join(dir, working)
+			os.chdir(working)
+		else:
+			working=os.path.dirname(__file__)
 
 		if '../' in inputfile or inputfile[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			inputfile = os.path.join(dir, inputfile)
 
 

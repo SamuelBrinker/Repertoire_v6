@@ -87,10 +87,10 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 		g.writelines(temp)
 		g.close()
 
-	cmnd = BLASTbindir+'/makeblastdb -dbtype nucl -in '+infile+' -out '+database_store
+	cmnd = BLASTbindir+'makeblastdb -dbtype nucl -in '+infile+' -out '+database_store
 	print "---BLASTDB---\n", cmnd, os.system(cmnd), "---\n" #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
 	blastoutfilename = infiledir+infile.split('/')[-1].split('.fa')[0]+'.vs.'+infile.split('/')[-1].split('.fa')[0]+'.blastout'
-	cmnd = BLASTbindir+"/blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -dust no -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
+	cmnd = BLASTbindir+"blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -dust no -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
 	#										0	  1	    2	   3	  4 		5	    6	   7		8	  9 	10	 11	   12	 13
 
 	#print hilc, lihc
@@ -394,10 +394,23 @@ class clusterApp():
 		self.verbose = False
 
 
-	def start(self, infile, blastdatabasedir, BLASTbindir,check_n, force, lihc, hilc, expanded, PERC_IDENTITY_THRESH=90.0,leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, LENGTH_THRESH=.9, n_allowed=0, threads=1,alignments=250): #, all_data="False"):
+	def start(self, infile, blastdatabasedir,check_n, force, lihc, hilc, expanded, PERC_IDENTITY_THRESH=90.0,
+		leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, 
+		LENGTH_THRESH=.9, n_allowed=0, threads=1,alignments=250, working='', BLASTbindir=''): #, all_data="False"):
 		
 		####### ADDD PROPER NAME
+		if working!='':
+			if working[-1]!='/':
+				working+='/'
+			if '../' in working:
+				dir = os.path.dirname(__file__)
+				working = os.path.join(dir, working)
+			os.chdir(working)
+		else:
+			working=os.path.dirname(__file__)
+
 		all_clusters='all_clusters_run_1.txt'
+
 		if force!=True:
 			x=2
 			while os.path.isfile(all_clusters) ==True:
@@ -407,16 +420,22 @@ class clusterApp():
 			file.close()
 
 		if '../' in infile or infile[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			infile = os.path.join(dir, infile)
 
-		if '../' in BLASTbindir or BLASTbindir[0]!='/':
-			dir = os.path.dirname(__file__)
-			BLASTbindir = os.path.join(dir, BLASTbindir)
+		if BLASTbindir !='':
+			if '../' in BLASTbindir or BLASTbindir[0]!='/':
+				dir = os.path.dirname(working)
+				BLASTbindir = os.path.join(dir, BLASTbindir)
+				BLASTbindir = os.path.abspath(os.path.realpath(BLASTbindir))
+			if BLASTbindir[:-1]!='/':
+				BLASTbindir+='/'
+
 
 		if '../' in blastdatabasedir or blastdatabasedir[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			blastdatabasedir = os.path.join(dir, blastdatabasedir)
+			blastdatabasedir = os.path.abspath(os.path.realpath(blastdatabasedir))
 
 		infile_filename = infile.split('/')[-1]
 
@@ -550,12 +569,12 @@ class clusterApp():
 					
 					
 				else:  #Things that are not singletons
-					if expanded:
+					if expanded==True:
 						expanded_clusters=''
 					elm_in_cluster=[]
 
 					for elem in clusters[cluster]: #clusters are an array of samples
-						if expanded:
+						if expanded==True:
 							expanded_clusters+=str(elem)+'\n'
 
 						if examin!=[]:  #if there are clusters to examine, this will will add all elements of the cluster to a list
@@ -666,7 +685,7 @@ class clusterApp():
 								difference[4]+=header+' '
 
 					#####################################################################################################
-					if expanded and longest_element[1] !='':
+					if expanded==True and longest_elem[1] !='':
 						string=''
 						if i==0:				############## Write expanded to all_expanded
 							string='\n--------h_i_h_c_'+longest_elem[1]+" smallest shared identity: "+str(difference[0])+' '+difference[1]+" largest difference in coverage: "+str(difference[2]*100)+'% '+difference[3] 
@@ -753,7 +772,7 @@ class clusterApp():
 			while a<len(to_write): #outputs the clusters
 				try:
 					if "h_i_h_c_" in str(to_write[a].id) or "singleton_" in str(to_write[a].id):
-						outfilewriter.write(">"+str(to_write[a].id)+"\n")
+						outfilewriter.write(">"+str(to_write[a].id))
 						outfilewriter.write(str(to_write[a].description))
 						outfilewriter.write(str(to_write[a].seq)+"\n")
 				except:
@@ -767,7 +786,7 @@ class clusterApp():
 		with open(all_genes_file , 'w') as file:	
 			while a<len(to_write): #outputs the clusters
 				try:
-					file.write(">"+str(to_write[a].id)+"\n")
+					file.write(">"+str(to_write[a].id))
 					file.write(str(to_write[a].description))
 					file.write(str(to_write[a].seq)+"\n")
 				except:
@@ -800,7 +819,7 @@ class clusterApp():
 				outfilewriter.writelines(clusters_to_write)
 				outfilewriter.close()
 		
-		if expanded:	
+		if expanded==True:	
 			with open(expanded_clusters_file,'w') as file:
 				file.writelines(all_expanded)
 				file.close()

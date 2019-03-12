@@ -7,16 +7,25 @@ class extractApp():
 		self.verbose = False
 
 
-	def start(self, database, expanded, to_examine):
+	def start(self, database, expanded, to_examine, working=''):
+		if working!='':
+			if working[-1]!='/':
+				working+='/'
+			if '../' in working:
+				dir = os.path.dirname(__file__)
+				working = os.path.join(dir, working)
+			os.chdir(working)
+		else:
+			working=os.path.dirname(__file__)
 
 		if '../' in database or database[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			database = os.path.join(dir, database)
 		if '../' in expanded or expanded[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			expanded = os.path.join(dir, expanded)
 		if '../' in to_examine or to_examine[0]!='/':
-			dir = os.path.dirname(__file__)
+			dir = os.path.dirname(working)
 			to_examine = os.path.join(dir, to_examine)
 
 		infile_filename = expanded.split('/')[-1]
