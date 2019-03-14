@@ -87,7 +87,9 @@ class mimp_finderApp():
 								stream.close()
 
 							print("\\ Processing "+str(file)+' with model '+model.split('.fasta')[0])
-							bashCommand = "tirmite --alnFile "+seed_mimps+model+" --alnFormat fasta --stableReps 2 --outdir tirmite_mimps -v --maxeval "+str(maxeval)+" --maxdist "+ str(maxdist)+" --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0] +" --mincov "+str(mincov))
+
+							bashCommand = "tirmite --alnFile "+seed_mimps+model+" --alnFormat fasta --stableReps 2 --outdir "+output_path.split('downstream_upstream/')[0] + "tirmite_mimps -v --maxeval "+str(maxeval)+" --maxdist "+ str(maxdist)+" --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0] +" --mincov "+str(mincov))
+							#print bashCommand
 							subprocess.check_output(['bash','-c', bashCommand])
 
 						
@@ -272,6 +274,7 @@ class mimp_finderApp():
 				file.close()
 			files = os.listdir(directory_folder)
 			up_down_stream=[]
+			unique_elements=[]
 			for file in files:
 				if '.fasta' in file:
 					print '\\ Extracting genes from genome: '+ file.replace('.fasta','')
@@ -286,9 +289,9 @@ class mimp_finderApp():
 								start = int(elem.split("\t")[3])-1
 								end = int(elem.split("\t")[4])-1					
 								x='a'
-								up_down_stream.append('>'+elem.split('\t')[0]+"_"+elem.split('\t')[1]+"_region:"+str(start+1)+'_'+str(end+1)+"\n")
+								unique_elements.append('>'+elem.split('\t')[0]+"_"+elem.split('\t')[1]+"_region:"+str(start+1)+'_'+str(end+1)+"\n")
 								x=str(contig.seq)[start:end]
-								up_down_stream.append(x+'\n')
+								unique_elements.append(x+'\n')
 								sequence=''
 								unique_gff_sequences.remove(elem)
 								if x=="":
@@ -302,17 +305,58 @@ class mimp_finderApp():
 									#print genome[i+1][end]
 									#print genome[i+1][to_end]
 									exit()
+
+								##################	record up_down
+
+								if start-distance>=1:
+									to_start=start-distance
+								else:
+									to_start=1		
+
+								if end+distance<=len(str(contig.seq)):
+									to_end=end+distance
+								else:
+									to_end=len(str(contig.seq))-1					
+								x='a'
+								if start!=to_start:
+									up_down_stream.append(elem.split('\t')[0]+"_upstream_region:"+str(to_start+1)+'_'+str(start+1)+"\n")
+									x=str(contig.seq)[to_start:start]
+									up_down_stream.append(x+'\n')
+								if to_end!=end:
+									up_down_stream.append(elem.split('\t')[0]+"_downstream_region:"+str(end+1)+'_'+str(to_end+1)+"\n")
+									up_down_stream.append(str(contig.seq)[end:to_end]+'\n')
+								sequence=''
+								if x=="":
+									print "Error"
+									print to_start, start, "1"
+									print end, to_end, "2"
+									print contig.id, contig_to_examin, "3"
+									print str(contig.seq)[1:3], "4"
+									print len(contig.seq), '5'
+									#print genome[i+1][start]
+									#print genome[i+1][end]
+									#print genome[i+1][to_end]
+									exit()
 								
 
-			with open('all_unique_elements.fasta', 'a') as stream:
+			
+			output_path=working+'/unique_TIR_elements/up_down_stream/'					
+			if not os.path.exists(output_path):
+				os.makedirs(output_path)		
+			
+			with open(output_path+'up_down_stream.fasta', 'w') as stream:
 				stream.writelines(up_down_stream)
-				up_down_stream=[]
+				stream.close()
+
+			with open('all_unique_elements.fasta', 'a') as stream:
+				stream.writelines(unique_elements)
+				unique_elements=[]
 				stream.close()
 
 			if gene!=False:
 				#def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, working=''):
 				run_gene=gene_finder.gene_finderApp()
-				run_gene.start(False, directory_folder, working,'signalP', 10, 2500, 134,.45, working)
+				run_gene.start(False, output_path, working,'signalP', 10, 2500, 134,.45, working)
 
 
 
