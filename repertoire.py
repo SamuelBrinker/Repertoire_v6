@@ -26,7 +26,8 @@ def mimp_finderParser(subparsers):
   mimp_finder_parser.add_argument('-b', '--bedtool', help='Location of bedtools', dest='bedtools',type=str,default='bedtools')
   mimp_finder_parser.add_argument('-g', '--gff', help='Do not make gff file out of unique elements', dest='run_gff',action='store_false')
   mimp_finder_parser.add_argument('-gn', '--gene', help='Do not run gene_finder after finishing making gff files. Normally runs with default peramiters', dest='gene', action='store_false')
-
+  mimp_finder_parser.add_argument('-p', '--signalP', help='SignalP path', dest='signalp', default='signalP', type=str)
+  
   return mimp_finder_parser
 
 class mimp_finderCMD:
@@ -37,7 +38,7 @@ class mimp_finderCMD:
   def execute(self, args):
     app = mimp_finder.mimp_finderApp()
     return app.start(args.gene, args.force, args.run_gff, args.directory_folder, args.seed_mimp, args.working, args.bedtools,args.min_length, 
-      args.max_length, args.distance, args.maxeval, args.maxdist, args.mincov)
+      args.max_length, args.distance, args.maxeval, args.maxdist, args.mincov, args.signalp)
     # maxeval=1, maxdist=10000, mincov=.9
 def gene_finderParser(subparsers):
   gene_finder_parser = subparsers.add_parser('gene_finder', help='Gene_finder finds effectors / genes using given sequence data')
@@ -96,7 +97,7 @@ def clusterParser(subparsers):
   cluster_parser.add_argument('-b', '--BLASTbindir', help='BLAST bin directory (i.e. /usr/local/bin)', dest='BLASTbindir', type=str, default='')
   cluster_parser.add_argument('-x', '--examine', help='Text file containing sequence/cluster headers. Every sequence that was clustered with a provided header will be outputed', dest='examin', type=str, default="")
   cluster_parser.add_argument('-e', '--e_value', help='The minimum e value for BLAST, default=.001', dest='E_VALUE_THRESH', type=float, default=.001)
-  cluster_parser.add_argument('-p', '--percent', help='The minimum percent of shared identity between two sequences needed for the two to be clustered, default=90', type=int, dest='PERC_IDENTITY_THRESH', default=90.0)
+  cluster_parser.add_argument('-p', '--percent', help='The minimum percent of shared identity between two sequences needed for the two to be clustered, default=80', type=int, dest='PERC_IDENTITY_THRESH', default=80.0)
   cluster_parser.add_argument('-lt', '--ll_thresh', help='Bare minimum of overlap needed for low length clustering, default=.25', dest='low_length_thresh', type=float, default=.50)
   cluster_parser.add_argument('-w', '--low_identity', help='Bare minimum of identity needed to for low identity clustering, default=50', dest='low_identity', type=int, default=70)
   cluster_parser.add_argument('-l', '--length_thresh', help='Minimum amount of overlap two sequences need to have to cluster, default=.8', dest='LENGTH_THRESH', type=float, default=.8)
@@ -120,9 +121,9 @@ class clusterCMD:
 
   def execute(self, args):
     app = cluster.clusterApp()
-    return app.start(args.infile, args.blastdatabasedir, args.BLASTbindir,args.check_n, args.force, args.lihc, args.hilc,
-     args.expanded, args.PERC_IDENTITY_THRESH,args.leave_put_eff_identifiers_during_clustering, args.E_VALUE_THRESH,args.examin,
-      args.low_length_thresh, args.low_identity, args.LENGTH_THRESH, args.n_allowed, args.threads, args.alignments, args.working) #args.all_data)
+    return app.start(args.infile, args.blastdatabasedir, args.check_n, args.force, args.lihc, args.hilc,
+    args.expanded, args.PERC_IDENTITY_THRESH,args.leave_put_eff_identifiers_during_clustering, args.E_VALUE_THRESH,args.examin,
+    args.low_length_thresh, args.low_identity, args.LENGTH_THRESH, args.n_allowed, args.threads, args.alignments, args.working, args.BLASTbindir) #args.all_data)
 
 def extractParser(subparsers):
   extract_parser = subparsers.add_parser('extract', help='Input representative clusters and receive the elements of the cluster')

@@ -98,7 +98,7 @@ class mergeApp():
 
 
 		cmnd = BLASTbindir+'makeblastdb -dbtype nucl -in '+clusters+' -out '+database_store
-		print "---BLASTDB---\n", cmnd, os.system(cmnd), "---\n" #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
+		print("---BLASTDB---\n", cmnd, os.system(cmnd), "---\n") #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
 		blastoutfilename = wd+'/'+infile.split('/')[-1].split('.fa')[0]+'.vs.'+clusters.split('/')[-1].split('.fa')[0]+'.blastout'
 		cmnd = BLASTbindir+"blastn -outfmt '6 qseqid sseqid pident length qstart qend sstart send qlen slen' -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
 												#0		1		2		3	4		5	6		7	8	9
@@ -146,18 +146,18 @@ class mergeApp():
 
 					#not_merged.remove(tabs[0])
 				except:
-					print tabs[0]
+					print(tabs[0])
 					pass
 
 				if tabs[1] in merged:
 					merged[merged.index(tabs[1])+1]+=tabs[0]+'\t'
 					if tabs[0].replace('\n','')=='':
-						print tabs[0]
+						print(tabs[0])
 				else:
 					merged.append(tabs[1])
 					merged.append(tabs[0].replace('\n','')+'\t')
 					if tabs[0].replace('\n','')=='':
-						print tabs[0]
+						print(tabs[0])
 				output_file.append(tabs[0]+'\t'+tabs[1]+'\t'+tabs[2]+'\t'+tabs[3]+'\t'+str(q_score)+'\t'+str(s_score)+'\n')
 
 		#print len(not_merged), len(merged)

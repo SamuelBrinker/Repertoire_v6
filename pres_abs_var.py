@@ -13,7 +13,8 @@ def BuildBlastDB(genome_folder, genome_fastafile, blastdatabasedir, BLASTbindir,
 	cmnd = BLASTbindir+'makeblastdb -dbtype nucl -in '+database_in+' -out '+database_store
 	if buildblastdb == 'yes':
 		print ("/ ---BUILDING BLAST DB FROM FASTA FILE---")
-		print cmnd, os.system(cmnd)	
+		print (cmnd)
+		print((os.system(cmnd)))	
 	elif buildblastdb == 'no':
 		print ("/ No BLAST db will be built\n\n")
 		pass
@@ -27,11 +28,11 @@ def BlastAndParse(blastdb, genome, queryfile, E_VALUE_THRESH, PERC_IDENTITY_THRE
 	open(blastoutput, 'wb').close() #clearfile
 	if BLAST_type == 'BLASTN':
 		blastn_cline = NcbiblastnCommandline(query=queryfile, db=blastdb, evalue=E_VALUE_THRESH, outfmt=5, out=blastoutput, dust='no', task=BLAST_task)
-		print ""
-		print blastn_cline
+		print("")
+		print (blastn_cline)
 		blastn_cline()
 	else:
-		print "ERROR: NO BLAST TYPE HAS BEEN SPECIFIED (BLASTN OR TBLASTN)"
+		print ("ERROR: NO BLAST TYPE HAS BEEN SPECIFIED (BLASTN OR TBLASTN)")
 	
 	result_handle = open(blastoutput)
 	blast_records = NCBIXML.parse(result_handle) 
@@ -50,7 +51,7 @@ def BlastAndParse(blastdb, genome, queryfile, E_VALUE_THRESH, PERC_IDENTITY_THRE
 					return_contig_nr = subject_name.split("ontig_")[1]
 					if "_" in return_contig_nr:
 						return_contig_nr = return_contig_nr.split("_")[0]
-				if not effector2scoresForThisGenome.has_key(blast_record.query): effector2scoresForThisGenome[blast_record.query]=[]
+				if blast_record.query not in effector2scoresForThisGenome: effector2scoresForThisGenome[blast_record.query]=[]
 				if (hsp.expect < E_VALUE_THRESH) and (return_perc_id >= PERC_IDENTITY_THRESH):
 					if output_contigs in 'no': 				#'', 'no' or 'n'
 						effector2scoresForThisGenome[blast_record.query].append(return_perc_id)
@@ -78,7 +79,7 @@ class pres_abs_varApp():
 			os.chdir(working)
 		else:
 			working=os.path.dirname(__file__)
-		print os.getcwd()
+		print((os.getcwd()))
 
 		if '../' in queryfile:
 			dir = os.path.dirname(working)
@@ -141,7 +142,7 @@ class pres_abs_varApp():
 				x+=1
 
 		if buildblastdb == 'yes':
-			print "// Will start with building BlastDBs of each genome encountered.\n"
+			print ("// Will start with building BlastDBs of each genome encountered.\n")
 		
 		yes = set(['yes','y'])
 		no = set(['no','n', ''])
@@ -153,44 +154,43 @@ class pres_abs_varApp():
 			
 		else:
 			hierarchicalclustering = False
-			output_contigs = raw_input("Would you like to get contig numbers in stead of %id? (y/n) \n>")
+			output_contigs = eval(input("Would you like to get contig numbers in stead of %id? (y/n) \n>"))
 			if output_contigs in yes:
 				outfilename = outfilename.split('.txt')[0]+'_contignrs.txt'
 				
 		if transpose == True:
 			outfilename = outfilename.split('.txt')[0]+'_transposed.txt'
-
-	  	query_list = []
-	   	for record in SeqIO.parse(queryfile, 'fasta'):
-	   		query_list.append(record.id)
-	   	
+		query_list = []
+		
+		for record in SeqIO.parse(queryfile, 'fasta'):
+			query_list.append(record.id)
 	   	###############################################################
 	   	#cancels all above outputfile naming statements:
-	   	outfilename = outputdir+'blastn_presence_absence.txt'
+		outfilename = outputdir+'blastn_presence_absence.txt'
 	  	###############################################################	
 		effector2genome2scores = {}
 		genomes = []
-	 	for genome_fastafile in os.listdir(genome_folder):
-	 		if genome_fastafile.endswith((".fa", ".fasta", ".fas")):
-	 			blastdb, genome = BuildBlastDB(genome_folder, genome_fastafile, blastdatabasedir, BLASTbindir,buildblastdb)
-	 			genomes.append(genome)
-	 			#return a dictionary containing all query fastaheaders (keys) with BLAST% as values:
-	 			effector2scoresForThisGenome = BlastAndParse(blastdb, genome, queryfile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, outputdir, BLAST_task,BLAST_type,output_contigs)
-	 			
-	 			#order these back to the way they were in the original query fastafile:
-	 			n=1
-	 			for effector in query_list:
-	 				new_record_id = '{0:04}'.format(n)+'..'+effector 			#'..' to reduce mis-splitting
-	 				if not effector2genome2scores.has_key(new_record_id): effector2genome2scores[new_record_id] = {}
-	 				#in dictionary effector2scoresForThisGenome, add empty values (for effectors that were not found with BLAST:
-	 				if not effector2scoresForThisGenome.has_key(effector): 
-	 					effector2scoresForThisGenome[effector] = []
-	 				effector2genome2scores[new_record_id][genome] = effector2scoresForThisGenome[effector]
-	 				n+=1
-	 		else:
-	 			print '-'*20
-	 			print "// No more files with extension .fa, .fas, .fasta were found in directory '%s'" % (genome_folder)
-				print '-'*20
+		for genome_fastafile in os.listdir(genome_folder):
+			if genome_fastafile.endswith((".fa", ".fasta", ".fas")):
+				blastdb, genome = BuildBlastDB(genome_folder, genome_fastafile, blastdatabasedir, BLASTbindir,buildblastdb)
+				genomes.append(genome)
+				#return a dictionary containing all query fastaheaders (keys) with BLAST% as values:
+				effector2scoresForThisGenome = BlastAndParse(blastdb, genome, queryfile, E_VALUE_THRESH, PERC_IDENTITY_THRESH, outputdir, BLAST_task,BLAST_type,output_contigs)
+				
+				#order these back to the way they were in the original query fastafile:
+				n=1
+				for effector in query_list:
+					new_record_id = '{0:04}'.format(n)+'..'+effector 			#'..' to reduce mis-splitting
+					if new_record_id not in effector2genome2scores: effector2genome2scores[new_record_id] = {}
+					#in dictionary effector2scoresForThisGenome, add empty values (for effectors that were not found with BLAST:
+					if effector not in effector2scoresForThisGenome: 
+						effector2scoresForThisGenome[effector] = []
+					effector2genome2scores[new_record_id][genome] = effector2scoresForThisGenome[effector]
+					n+=1
+			else:
+				print(('-'*20))
+				print(("// No more files with extension .fa, .fas, .fasta were found in directory '%s'" % (genome_folder)))
+				print(('-'*20))
 				
 		# Print to table:
 
@@ -212,7 +212,7 @@ class pres_abs_varApp():
 			for g in genomes:
 				header += '\t'+g
 		header+='\n'
-		print header
+		print (header)
 		outfile.write(header)
 		
 		if transpose == True:
@@ -234,7 +234,7 @@ class pres_abs_varApp():
 							scorestr+=str(s)+';'
 						scorestr = scorestr[:-1] # laatste ; eraf	
 					out += '\t'+str(scorestr)
-				print out
+				print (out)
 				outfile.write(out+'\n')
 		else:
 			for effector in sorted(effector2genome2scores.keys()):
@@ -252,13 +252,13 @@ class pres_abs_varApp():
 							scorestr+=str(s)+';'
 						scorestr = scorestr[:-1] # laatste ; eraf	
 					out += '\t'+str(scorestr)
-				print out
+				print (out)
 				outfile.write(out+'\n')
 		outfile.close()
-		print '-'*30
-		print "// Written data to file: ", outfilename
-		print '-'*30,'\n', "Generating image"
-		print r_location, outfilename
+		print(('-'*30))
+		print(("// Written data to file: ", outfilename))
+		print(('-'*30,'\n', "Generating image"))
+		print((r_location, outfilename))
 
 		if show_all==False:
 			subprocess.call ("Rscript --vanilla "+str(r_location)+" "+str(outfilename)+" FALSE", shell=True)

@@ -12,7 +12,7 @@ class mimp_finderApp():
 		self.verbose = False
 
 	def start(self, gene, force,run_gff, directory_folder, seed_mimps,working='', bedtools='bedtools',min_length=200,
-	 max_length=400, distance=2500, maxeval=1, maxdist=10000, mincov=.9):
+	 max_length=400, distance=2500, maxeval=1, maxdist=10000, mincov=.9, signalP='signalP'):
 		
 		if working!='':
 			if working[-1]!='/':
@@ -40,6 +40,11 @@ class mimp_finderApp():
 			dir = os.path.dirname(working)
 			seed_mimps = os.path.join(dir, seed_mimps)
 			seed_mimps = os.path.abspath(os.path.realpath(seed_mimps))
+			
+		if '../' in signalP or signalP[0]!='/':
+			dir = os.path.dirname(working)
+			signalP = os.path.join(dir, signalP)
+			signalP = os.path.abspath(os.path.realpath(signalP))
 
 
 		if working[-1]=='/' :
@@ -50,7 +55,7 @@ class mimp_finderApp():
 
 		models = os.listdir(seed_mimps)
 		if len(models) <1:
-			print "Need to a mimp model to continue"
+			print("Need to a mimp model to continue")
 			stop()
 
 
@@ -86,7 +91,7 @@ class mimp_finderApp():
 							with open(stream_path, 'w') as stream:
 								stream.close()
 
-							print("\\ Processing "+str(file)+' with model '+model.split('.fasta')[0])
+							print(("\\ Processing "+str(file)+' with model '+model.split('.fasta')[0]))
 
 							bashCommand = "tirmite --alnFile "+seed_mimps+model+" --alnFormat fasta --stableReps 2 --outdir "+output_path.split('downstream_upstream/')[0] + "tirmite_mimps -v --maxeval "+str(maxeval)+" --maxdist "+ str(maxdist)+" --genome "+str(directory_folder)+str(file)+" --prefix "+str(file.split(".fasta")[0] +" --mincov "+str(mincov))
 							#print bashCommand
@@ -162,12 +167,12 @@ class mimp_finderApp():
 											up_down_stream.append(str(contig.seq)[end:to_end]+'\n')
 										sequence=''
 										if x=="":
-											print "Error"
-											print to_start, start, "1"
-											print end, to_end, "2"
-											print contig.id, contig_to_examin, "3"
-											print str(contig.seq)[1:3], "4"
-											print len(contig.seq), '5'
+											print("Error")
+											print(to_start, start, "1")
+											print(end, to_end, "2")
+											print(contig.id, contig_to_examin, "3")
+											print(str(contig.seq)[1:3], "4")
+											print(len(contig.seq), '5')
 											#print genome[i+1][start]
 											#print genome[i+1][end]
 											#print genome[i+1][to_end]
@@ -183,7 +188,7 @@ class mimp_finderApp():
 					# End of looping through the genome files
 				
 				##################
-				print "\\ Combining found elements for model "+model.split('.fasta')[0]
+				print("\\ Combining found elements for model "+model.split('.fasta')[0])
 				#bashCommand = "cat "+os.getcwd()+"/tirmite_mimps/*elements*.fasta > "+os.getcwd() +"/tirmite_mimps/all_elements.fasta"
 				#subprocess.check_output(['bash','-c', bashCommand])
 				elements= os.listdir(os.getcwd() +"/tirmite_mimps/")
@@ -202,13 +207,13 @@ class mimp_finderApp():
 					a.close()
 
 				gff=[]
-				print "\\ Producing GFF file"
+				print("\\ Producing GFF file")
 				for line in combined_elements:
 					if ">" in line:
 						try:
 							data=''.join(line.split('[')[1].split(':')[:-1])+'\t'+model.split('.fasta')[0]+'\tmimp\t'+str(int(line.split(":")[-1].split('_')[0]))+'\t'+ str(int(line.split(":")[-1].split('_')[1].split(' ')[0]))+'\t.\t0\t;'+'\n'
 						except:
-							print line
+							print(line)
 							data=''.join(line.split('[')[1].split(':')[:-1])+'\t'+model+'\tmimp\t'+str(int(line.split(":")[-1].split('_')[0]))+'\t'+ str(int(line.split(":")[-1].split('_')[1].split(' ')[0]))+'\t.\t0\t;'+'\n'
 
 						gff.append(data)
@@ -224,7 +229,7 @@ class mimp_finderApp():
 
 		######################
 		if run_gff != False:
-			print "\\ Finding unique TIR elements"
+			print("\\ Finding unique TIR elements")
 			if not os.path.exists(working+'/unique_TIR_elements/'):
 				os.makedirs(working+'/unique_TIR_elements/')
 			os.chdir(working+'/unique_TIR_elements/')
@@ -266,7 +271,7 @@ class mimp_finderApp():
 				index+=1
 
 
-			print '\\ Turning GFF file into a .fasta'
+			print('\\ Turning GFF file into a .fasta')
 			#print force
 
 			with open('combined_unique_elements.gff','r') as file:
@@ -277,7 +282,7 @@ class mimp_finderApp():
 			unique_elements=[]
 			for file in files:
 				if '.fasta' in file:
-					print '\\ Extracting genes from genome: '+ file.replace('.fasta','')
+					print('\\ Extracting genes from genome: '+ file.replace('.fasta',''))
 					genome = list(SeqIO.parse(str(directory_folder)+str(file), "fasta"))
 					i=0
 					
@@ -295,12 +300,12 @@ class mimp_finderApp():
 								sequence=''
 								unique_gff_sequences.remove(elem)
 								if x=="":
-									print "Error"
-									print to_start, start, "1"
-									print end, to_end, "2"
-									print contig.id, contig_to_examin, "3"
-									print str(contig.seq)[1:3], "4"
-									print len(contig.seq), '5'
+									print("Error")
+									print(to_start, start, "1")
+									print(end, to_end, "2")
+									print(contig.id, contig_to_examin, "3")
+									print(str(contig.seq)[1:3], "4")
+									print(len(contig.seq), '5')
 									#print genome[i+1][start]
 									#print genome[i+1][end]
 									#print genome[i+1][to_end]
@@ -311,7 +316,7 @@ class mimp_finderApp():
 								if start-distance>=1:
 									to_start=start-distance
 								else:
-									to_start=1		
+									to_start=0		
 
 								if end+distance<=len(str(contig.seq)):
 									to_end=end+distance
@@ -319,20 +324,20 @@ class mimp_finderApp():
 									to_end=len(str(contig.seq))-1					
 								x='a'
 								if start!=to_start:
-									up_down_stream.append(elem.split('\t')[0]+"_upstream_region:"+str(to_start+1)+'_'+str(start+1)+"\n")
+									up_down_stream.append('>'+elem.split('\t')[0]+"_upstream_region:"+str(to_start+1)+'_'+str(start+1)+"\n")
 									x=str(contig.seq)[to_start:start]
 									up_down_stream.append(x+'\n')
 								if to_end!=end:
-									up_down_stream.append(elem.split('\t')[0]+"_downstream_region:"+str(end+1)+'_'+str(to_end+1)+"\n")
+									up_down_stream.append('>'+elem.split('\t')[0]+"_downstream_region:"+str(end+1)+'_'+str(to_end+1)+"\n")
 									up_down_stream.append(str(contig.seq)[end:to_end]+'\n')
 								sequence=''
 								if x=="":
-									print "Error"
-									print to_start, start, "1"
-									print end, to_end, "2"
-									print contig.id, contig_to_examin, "3"
-									print str(contig.seq)[1:3], "4"
-									print len(contig.seq), '5'
+									print("Error")
+									print(to_start, start, "1")
+									print(end, to_end, "2")
+									print(contig.id, contig_to_examin, "3")
+									print(str(contig.seq)[1:3], "4")
+									print(len(contig.seq), '5')
 									#print genome[i+1][start]
 									#print genome[i+1][end]
 									#print genome[i+1][to_end]
@@ -354,9 +359,11 @@ class mimp_finderApp():
 				stream.close()
 
 			if gene!=False:
-				#def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, working=''):
+				print("Running gene_finder")
+				#	def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, working=''):
+
 				run_gene=gene_finder.gene_finderApp()
-				run_gene.start(False, output_path, working,'signalP', 10, 2500, 134,.45, working)
+				run_gene.start(True, output_path, working,signalP, 10, 2500, 134,.45, working)
 
 
 

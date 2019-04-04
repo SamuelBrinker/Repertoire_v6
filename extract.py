@@ -34,7 +34,7 @@ class extractApp():
 		if not os.path.exists(extracted_path):
 			os.makedirs(extracted_path)	
 
-		print extracted_path, "test'"
+		#print extracted_path, "test'"
 
 		with open(to_examine, 'r') as file:
 			all_examine=file.readlines()
@@ -103,8 +103,8 @@ class extractApp():
 		clustered_headers.append(clusters)	
 
 		#print clustered_headers
-		print len(clustered_headers)
-		print len(clustered_headers[0])
+		#print len(clustered_headers)
+		#print len(clustered_headers[0])
 
 
 		with open(database,'r') as file:
@@ -113,7 +113,7 @@ class extractApp():
 
 		record=False
 		#print clustered_headers[:2]
-		print len(clustered_headers)
+		#print len(clustered_headers)
 		
 		
 		to_edit = all_genes
@@ -125,8 +125,8 @@ class extractApp():
 				all_genes.append(gene)
 
 		#print [clustered_headers[-1][0]]
-		print [all_genes[0]]
-		print len(all_genes)
+		#print [all_genes[0]]
+		#print len(all_genes)
 
 		reverse=False
 		check=True
@@ -137,8 +137,8 @@ class extractApp():
 			while z<len(cluster):
 				x=0
 				if '63_fo_mel_Fom013_contig_1806:3631-3882' in cluster[z]:
-					print "ahhhhhh"
-					print cluster[z]
+					print("ahhhhhh")
+					print(cluster[z])
 
 				if '_Reversed' in cluster[z].replace('\n',''):
 					reverse=True
@@ -147,7 +147,7 @@ class extractApp():
 
 					if record==True and reverse==False:	
 						if '63_fo_mel_Fom013_contig_1806:3631-3882' in cluster[z]:
-							print "ahhhhhh"
+							print("ahhhhhh")
 						if '>' in all_genes[x]:
 							record=False
 							to_write+='\n'							

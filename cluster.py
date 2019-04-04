@@ -88,11 +88,13 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 		g.close()
 
 	cmnd = BLASTbindir+'makeblastdb -dbtype nucl -in '+infile+' -out '+database_store
-	print "---BLASTDB---\n", cmnd, os.system(cmnd), "---\n" #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
+	print("---BLASTDB---\n", cmnd, os.system(cmnd), "---\n") #uncomment if you want to rebuild a blastdb #untag # if you want to build the BLAST database
 	blastoutfilename = infiledir+infile.split('/')[-1].split('.fa')[0]+'.vs.'+infile.split('/')[-1].split('.fa')[0]+'.blastout'
 	cmnd = BLASTbindir+"blastn -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -dust no -query "+infile+' -db '+database_store+' -out '+blastoutfilename+' -evalue '+str(E_VALUE_THRESH)+" -num_threads "+str(threads)+" -num_alignments "+str(alignments)
 	#										0	  1	    2	   3	  4 		5	    6	   7		8	  9 	10	 11	   12	 13
-
+	#print("test")
+	os.system(cmnd)
+	#print("test")
 	#print hilc, lihc
 
 	effector2homologs = {}
@@ -104,7 +106,7 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 	cluster_catagories=[]
 	i=0
 
-	if os.system(cmnd) == 0:
+	if True:
 		lines = open(blastoutfilename).readlines()
 			#'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen    slen'
 		while i< 4:
@@ -132,16 +134,16 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 
 			for line in lines:
 				if (y/len(lines))>=.25 and check_25==True:
-					print "25%..."
+					print("...25%")
 					check_25=False
 				elif (y/len(lines))>=.50 and check_50==True:
-					print "50%..."
+					print("...50%")
 					check_50=False
 				elif (y/len(lines))>=.75 and check_75==True:
-					print "75%..."
+					print("...75%")
 					check_75=False
 				elif (y/len(lines))>=1 and check_100==True:
-					print "100%... clustering"
+					print("...100%  clustering")
 					check_100=False
 
 				q_new=True
@@ -176,35 +178,35 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 							s_new=False
 
 				elif i==1: #high_i_low_c
-				 	t=0
-				 	while t<len(high_i_high_c) and tabs[1]!=tabs[0]: 
-				 		if tabs[0] == high_i_high_c[t]: #this checks to see if the effector pair were in h_i_h_c. If it was, it will be ignored
-				 			if tabs[1] == high_i_high_c[t][1]: 
-				 				break
-				 			else:
-				 				t=len(high_i_high_c)
-				 				break
-				 		t+=1																				#been added to list, prevents repeats
-				 	if t==len(high_i_high_c) and float(tabs[2]) >= PERC_IDENTITY_THRESH and (c_score) >= (low_length_thresh) and q_score>low_length_thresh and s_score>low_length_thresh:
-				 		x=0
+					t=0
+					while t<len(high_i_high_c) and tabs[1]!=tabs[0]: 
+						if tabs[0] == high_i_high_c[t]: #this checks to see if the effector pair were in h_i_h_c. If it was, it will be ignored
+							if tabs[1] == high_i_high_c[t][1]: 
+								break
+							else:
+								t=len(high_i_high_c)
+								break
+						t+=1																				#been added to list, prevents repeats
+					if t==len(high_i_high_c) and float(tabs[2]) >= PERC_IDENTITY_THRESH and (c_score) >= (low_length_thresh) and q_score>low_length_thresh and s_score>low_length_thresh:
+						x=0
 						q_new=True
 						s_new=True
-				 		while x<len(high_i_low_c):
-				 			if q_new!=False and tabs[0] == high_i_low_c[x][0] : 																		 
-				 				high_i_low_c[x][1].append(tabs[1]) #add all BLAST-associated hits to this entry
-				 				q_new=False
-				 			if s_new != False and tabs[1] == high_i_low_c[x][0]: 
-				 				high_i_low_c[x][1].append(tabs[0]) 
-				 				s_new=False
-				 			if q_new== False and s_new==False:
-				 				break
-				 			x+=1
-				 		if q_new==True:
-				 			high_i_low_c.append([tabs[0],[tabs[1]]])
-				 			q_new =False
-				 		if s_new==True:
-				 			high_i_low_c.append([tabs[1],[tabs[0]]]) 
-				 			s_new =False
+						while x<len(high_i_low_c):
+							if q_new!=False and tabs[0] == high_i_low_c[x][0] : 																		 
+								high_i_low_c[x][1].append(tabs[1]) #add all BLAST-associated hits to this entry
+								q_new=False
+							if s_new != False and tabs[1] == high_i_low_c[x][0]: 
+								high_i_low_c[x][1].append(tabs[0]) 
+								s_new=False
+							if q_new== False and s_new==False:
+								break
+							x+=1
+						if q_new==True:
+							high_i_low_c.append([tabs[0],[tabs[1]]])
+							q_new =False
+						if s_new==True:
+							high_i_low_c.append([tabs[1],[tabs[0]]]) 
+							s_new =False
 
 				
 					
@@ -307,7 +309,7 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 					r=0
 				cluster_catagories.append(single_linkage(precluster_catagories[i],all_clusters)) #cluseters together the groups
 			else:
-				print "Number of singletons", len(singletons), '\n'
+				print("Number of singletons", len(singletons), '\n')
 				cluster_catagories+=[singletons]
 				with open("all_clusters_test.txt", "a") as file:
 					file.write("singletons\n")
@@ -350,7 +352,7 @@ def single_linkage(node_partners,all_clusters):
 				
 			i+=1
 		file.close()
-	print "number of clusters: ", len(clusters)
+	print("number of clusters: ", len(clusters))
 		
 	return clusters
 
@@ -393,13 +395,17 @@ class clusterApp():
 	def __init__(self):
 		self.verbose = False
 
-
-	def start(self, infile, blastdatabasedir,check_n, force, lihc, hilc, expanded, PERC_IDENTITY_THRESH=90.0,
+		#args.infile, args.blastdatabasedir, args.BLASTbindir,args.check_n, args.force, args.lihc, args.hilc,
+    #args.expanded, args.PERC_IDENTITY_THRESH,args.leave_put_eff_identifiers_during_clustering, args.E_VALUE_THRESH,args.examin,
+    #args.low_length_thresh, args.low_identity, args.LENGTH_THRESH, args.n_allowed, args.threads, args.alignments, args.working)
+	
+	def start(self, infile, blastdatabasedir,check_n, force, lihc, hilc, expanded, PERC_IDENTITY_THRESH=80.0,
 		leave_put_eff_identifiers_during_clustering="TRUE", E_VALUE_THRESH=.001,examin="", low_length_thresh=.5, low_identity=70, 
-		LENGTH_THRESH=.9, n_allowed=0, threads=1,alignments=250, working='', BLASTbindir=''): #, all_data="False"):
+		LENGTH_THRESH=.8, n_allowed=0, threads=1,alignments=250, working='', BLASTbindir=''): #, all_data="False"):
 		
 		####### ADDD PROPER NAME
 		if working!='':
+
 			if working[-1]!='/':
 				working+='/'
 			if '../' in working:
@@ -424,6 +430,7 @@ class clusterApp():
 			infile = os.path.join(dir, infile)
 
 		if BLASTbindir !='':
+			#print BLASTbindir
 			if '../' in BLASTbindir or BLASTbindir[0]!='/':
 				dir = os.path.dirname(working)
 				BLASTbindir = os.path.join(dir, BLASTbindir)
@@ -476,14 +483,14 @@ class clusterApp():
 			remove_n(infile, n_allowed)
 			infile=infiledir+'edited_'+infile_filename #to reflect the edited fasta file where n's are removed
 
-		print '\n'
-		print "// Running clustering script on file %s" % infile
+		print('\n')
+		print("// Running clustering script on file %s" % infile)
 
 		#print hilc, lihc
 
 		catagory = cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_THRESH,LENGTH_THRESH, blastdatabasedir, BLASTbindir, infiledir, low_identity, low_length_thresh, lihc, hilc,all_clusters,alignments)
 
-		print '\n', "Generating cluster information \n"
+		print('\n', "Generating cluster information \n")
 
 
 		blastoutfilename = infiledir+infile.split('/')[-1].split('.fa')[0]+'.vs.'+infile.split('/')[-1].split('.fa')[0]+'.blastout'
@@ -537,7 +544,7 @@ class clusterApp():
 							if examin!='':
 								for effector in clusters_to_examine:
 									if d<5:
-										print effector, '\n', clusters[cluster]
+										print(effector, '\n', clusters[cluster])
 										d+=1
 									if effector in clusters[cluster]:
 										clusters_to_write+=">"+str(sample.id)+"\n"+str(sample.seq)+"\n\n"
@@ -655,7 +662,7 @@ class clusterApp():
 													try:
 														expanded_clusters=expanded_clusters.split(header+'\n')[0]+temp_species+'\n'+expanded_clusters.split(header+'\n')[1]
 													except:
-														print header, '\n', '\n', expanded_clusters, '\n', i, '\n'
+														print(header, '\n', '\n', expanded_clusters, '\n', i, '\n')
 									
 											else:
 												temp_species=header
@@ -718,7 +725,7 @@ class clusterApp():
 													clusters_to_write+="\n>"+str(sample.id)+"\n"+str(sample.seq)
 										clusters_to_write+="\n\n"
 										loop =False
-										print 'test'
+										print('test')
 							loop=False
 
 				cluster+=1
@@ -746,7 +753,7 @@ class clusterApp():
 							longest_elements[z].id = "singleton_"+longest_element.description.split('.', 1)[1].split('_len', 1)[0]+"\n"
 
 						else:
-							print "Error"
+							print("Error")
 					except:
 						if i==0 and 'h_i_h_c_' not in longest_elements[z].id: #formats the longest elements
 							longest_elements[z].id = "h_i_h_c_"+longest_element.description +"\n"
@@ -759,9 +766,9 @@ class clusterApp():
 						elif i==3 and 'singleton_' not in longest_elements[z].id:
 							longest_elements[z].id = "singleton_"+longest_element.description+"\n"
 							if longest_elements[z].id =='01_fo_lyc_4287_MIMP_TIR_Element_41':
-								print 'writing error'
+								print('writing error')
 						else:
-							print "Error"
+							print("Error")
 				longest_elements[z].description = ""
 			to_write+=longest_elements
 			
@@ -796,23 +803,23 @@ class clusterApp():
 			file.close()
 
 		#outfilewriter= open(pres_abs_file, 'w') #writes the pres/ abs table
-		x= len(species_list)+1
-		temp_string ="Cluster vs species\t"
-		for species in species_list:
-			temp_string+=str(species)+"\t"
-		outfilewriter.write(temp_string+"Total number of effectors in the cluster \n")
-		for sample in cluster_present:
-			effector_total=0
-			while len(sample)<x:
-				sample.append("0")
-			temp_string =""
-			for effector_count in sample:
-				if isinstance(effector_count, int):
-					effector_total+=effector_count
-				temp_string+=str(effector_count)+"\t"
-			temp_string+=str(effector_total)+"\n"
-			outfilewriter.write(temp_string)
-		outfilewriter.close()
+		# x= len(species_list)+1
+		# temp_string ="Cluster vs species\t"
+		# for species in species_list:
+		# 	temp_string+=str(species)+"\t"
+		# outfilewriter.write(temp_string+"Total number of effectors in the cluster \n")
+		# for sample in cluster_present:
+		# 	effector_total=0
+		# 	while len(sample)<x:
+		# 		sample.append("0")
+		# 	temp_string =""
+		# 	for effector_count in sample:
+		# 		if isinstance(effector_count, int):
+		# 			effector_total+=effector_count
+		# 		temp_string+=str(effector_count)+"\t"
+		# 	temp_string+=str(effector_total)+"\n"
+		# 	outfilewriter.write(temp_string)
+		# outfilewriter.close()
 
 		if examin!="": #outputs the examined clusters if there were any
 			with open('clusters_examined.txt', 'w') as outfilewriter:
@@ -824,8 +831,8 @@ class clusterApp():
 				file.writelines(all_expanded)
 				file.close()
 
-		print '-'*30
-		print '-'*30
+		print('-'*30)
+		print('-'*30)
 		
 	
 			###76_fo_lag_Lag11_MIMP_TIR_20_elements
