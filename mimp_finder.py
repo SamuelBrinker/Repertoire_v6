@@ -40,7 +40,7 @@ class mimp_finderApp():
 			dir = os.path.dirname(working)
 			seed_mimps = os.path.join(dir, seed_mimps)
 			seed_mimps = os.path.abspath(os.path.realpath(seed_mimps))
-			
+
 		if '../' in signalP or signalP[0]!='/':
 			dir = os.path.dirname(working)
 			signalP = os.path.join(dir, signalP)
@@ -363,7 +363,7 @@ class mimp_finderApp():
 				#	def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, working=''):
 
 				run_gene=gene_finder.gene_finderApp()
-				run_gene.start(True, output_path, working,signalP, 10, 2500, 134,.45, working)
+				run_gene.start(True, output_path, working,signalP, 50, 2500, 134,.45, working)
 
 
 

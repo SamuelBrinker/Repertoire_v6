@@ -420,7 +420,7 @@ def ExtractOrfToFasta(proteinsfasta, uberinfile, puteff_dnaseqs, genome, puteff_
 						if genomicsequence!='':
 							genomicsequence = genomicsequence.reverse_complement()
 							print('   '+str(puteff_supercontig)+'\tposition '+str(genomic_start_pos)+'-'+str(genomic_end_pos)+'\t'+signalpeptideseq)
-							putEff_fastaentry = ">"+str(n).zfill(4)+'.'+signalpeptideseq+"_"+genome+"_d2m"+str(dist2mimp)+"_len"+str(protlength)+"\n"+str(genomicsequence)+"\n"
+							putEff_fastaentry = ">"+str(n).zfill(4)+'.'+signalpeptideseq+"_"+sc_id+"_d2m"+str(dist2mimp)+"_len"+str(protlength)+"\n"+str(genomicsequence)+"\n"
 							dnaoutfile.write(putEff_fastaentry)
 																															#orientation						#D_value, mimp_IR_seq, mimp_IR_pos
 							puteff_attributes = [genome, puteff_supercontig, genomic_start_pos, genomic_end_pos, dist2mimp, protlength, signalpeptideseq, proteinseq, genomicsequence]
@@ -436,7 +436,7 @@ def ExtractOrfToFasta(proteinsfasta, uberinfile, puteff_dnaseqs, genome, puteff_
 						genomicsequence = all_contigs[x+1][(genomic_start_pos-r_start):(genomic_end_pos-r_start)]#, len(sc.seq[genomic_start_pos-1:genomic_end_pos-1])
 						if genomicsequence!='':
 							print('   '+str(puteff_supercontig)+'\tposition '+str(genomic_start_pos)+'-'+str(genomic_end_pos)+'\t'+signalpeptideseq)
-							putEff_fastaentry = ">"+str(n).zfill(4)+'.'+signalpeptideseq+"_"+genome+"_d2m"+str(dist2mimp)+"_len"+str(protlength)+"\n"+str(genomicsequence)+"\n"
+							putEff_fastaentry = ">"+str(n).zfill(4)+'.'+signalpeptideseq+"_"+sc_id+"_d2m"+str(dist2mimp)+"_len"+str(protlength)+"\n"+str(genomicsequence)+"\n"
 							dnaoutfile.write(putEff_fastaentry)
 																															#orientation						#D_value, mimp_IR_seq, mimp_IR_pos
 							puteff_attributes = [genome, puteff_supercontig, genomic_start_pos, genomic_end_pos, dist2mimp, protlength, signalpeptideseq, proteinseq, genomicsequence]
@@ -506,7 +506,7 @@ class gene_finderApp():
 
 	def __init__(self):
 		self.verbose = False
-	def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=10, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, working=''):
+	def start(self, force, directory_folder, output_dir, SignalPpath ='signalP', min_prot_len=50, max_d2m=2500, max_prot_len=134, SignalP_threshold=.45, working=''):
 
 	#####################
 		if working!='':

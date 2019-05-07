@@ -27,7 +27,7 @@ def mimp_finderParser(subparsers):
   mimp_finder_parser.add_argument('-g', '--gff', help='Do not make gff file out of unique elements', dest='run_gff',action='store_false')
   mimp_finder_parser.add_argument('-gn', '--gene', help='Do not run gene_finder after finishing making gff files. Normally runs with default peramiters', dest='gene', action='store_false')
   mimp_finder_parser.add_argument('-p', '--signalP', help='SignalP path', dest='signalp', default='signalP', type=str)
-  
+
   return mimp_finder_parser
 
 class mimp_finderCMD:
@@ -44,7 +44,7 @@ def gene_finderParser(subparsers):
   gene_finder_parser = subparsers.add_parser('gene_finder', help='Gene_finder finds effectors / genes using given sequence data')
   gene_finder_parser.add_argument('-dir', '--directory', help='Directory containing all raw sequence data', dest='directory_folder', type=str)
   gene_finder_parser.add_argument('-o', '--out', help='Output directory', dest='output_dir', type=str)
-  gene_finder_parser.add_argument('-min', '--min_prot_len', help='Minimum length for a protein in amino acids, default=15', dest='min_prot_len', type=int, default=15)
+  gene_finder_parser.add_argument('-min', '--min_prot_len', help='Minimum length for a protein in amino acids, default=50', dest='min_prot_len', type=int, default=50)
   gene_finder_parser.add_argument('-max', '--max_prot_len', help='Max length for a protein in amino acids, default=134', type=int, dest='max_prot_len', default=134)
   gene_finder_parser.add_argument('-d2m', '--max_d2m', help='Max distance between mimp TIR and the first amino acid, default=2500', dest='max_d2m', type=str, default=2500)
   gene_finder_parser.add_argument('-s', '--signalp', help='Directory of signalP', dest='SignalPpath', type=str, default='signalP')
@@ -101,7 +101,7 @@ def clusterParser(subparsers):
   cluster_parser.add_argument('-lt', '--ll_thresh', help='Bare minimum of overlap needed for low length clustering, default=.25', dest='low_length_thresh', type=float, default=.50)
   cluster_parser.add_argument('-w', '--low_identity', help='Bare minimum of identity needed to for low identity clustering, default=50', dest='low_identity', type=int, default=70)
   cluster_parser.add_argument('-l', '--length_thresh', help='Minimum amount of overlap two sequences need to have to cluster, default=.8', dest='LENGTH_THRESH', type=float, default=.8)
-  cluster_parser.add_argument('-cn', '--check_n', help='Do not remove sequences the have more than (-n) percentage of Ns', dest='check_n',action='store_true')
+  cluster_parser.add_argument('-cn', '--check_n', help='Remove sequences the have more than (-n) percentage of Ns', dest='check_n',action='store_true')
   cluster_parser.add_argument('-n', '--allowed', help='Max percentage of Ns that are allowed in a sequence file, default=0', dest='n_allowed', type=float, default=0)
   cluster_parser.add_argument('-f', '--force', help='Do not allow program to rewrite over old data', dest='force',action='store_false')
   cluster_parser.add_argument('-hi', '--hilc', help='Generate high identity, low coverage clusters', dest='hilc', action='store_true')

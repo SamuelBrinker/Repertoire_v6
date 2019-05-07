@@ -13,6 +13,7 @@
 from Bio import SeqIO
 import os, sys
 def remove_n(infile, n_allowed):
+	print("Removing N's")
 	with open(infile, 'r') as file:
 		raw=file.readlines()
 		file.close()
@@ -96,6 +97,8 @@ def cluster_homologous_effectors(threads, infile, E_VALUE_THRESH, PERC_IDENTITY_
 	os.system(cmnd)
 	#print("test")
 	#print hilc, lihc
+	#-outfmt '6 qseqid qstart qend sseqid sstart send evalue'
+
 
 	effector2homologs = {}
 	high_i_high_c=[] #high identity, high coverage
