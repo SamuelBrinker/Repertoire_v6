@@ -17,7 +17,7 @@ def mimp_finderParser(subparsers):
   mimp_finder_parser.add_argument('-mx', '--max_length', help='Max length of TIR elements, default=400', dest='max_length', type=int, default=400)
   mimp_finder_parser.add_argument('-mi', '--min_length', help='Min length of TIR elements, default=200', dest='min_length', type=int, default=200)
   mimp_finder_parser.add_argument('-w', '--work', help="Working directory", dest='working', type=str, default='')
-  mimp_finder_parser.add_argument('-s', '--seed', help='A folder containing TIR models. TIRmite uses these to find similar TIRs throughout genomes.', dest='seed_mimp', type=str)
+  mimp_finder_parser.add_argument('-s', '--seed', help='A folder containing TIR models. TIRmite uses these to find similar TIRs throughout genomes. File names can only have 1 "."', dest='seed_mimp', type=str)
   mimp_finder_parser.add_argument('-d', '--distance', help='Distance up/downstream that is recorded, default=2500', dest='distance', type=int, default=2500)
   mimp_finder_parser.add_argument('-me', '--maxeval', help='Max e_value for TIRmite, default=1', dest='maxeval', type=float, default=1)
   mimp_finder_parser.add_argument('-md', '--maxdist', help='Max distance between TIRs in TIRmite, default=10000', dest='maxdist', type=int, default=10000)
@@ -162,7 +162,7 @@ class pat_matchCMD:
    
 def mergeParser(subparsers):
   merge_parser = subparsers.add_parser('merge', help='Will take a list of sequences and a list of clusters and merge the two together')
-  merge_parser.add_argument('-c', '--cluster', help='Location of clustered sequences', dest='clusters', type=str)
+  merge_parser.add_argument('-c', '--cluster', help='Location of all the genes of the clustered sequences', dest='clusters', type=str)
   merge_parser.add_argument('-i', '--infile', help='File containing sequences to merge with clusters', dest='infile', type=str)
   merge_parser.add_argument('-t', '--threads', help='Number of threads to run blast with, default=1', dest='threads', type=int, default=1)
   merge_parser.add_argument('-a', '--align', help='Each sequence can gnerate this number of blast hits, default=3', dest='alignments', type=int, default=3)
@@ -171,7 +171,7 @@ def mergeParser(subparsers):
   merge_parser.add_argument('-e', '--e_value', help='The minimum e value for BLAST, default to .001', dest='E_VALUE_THRESH', type=float, default=.001)
   merge_parser.add_argument('-p', '--percent', help='The minimum percent of shared identity between two sequences needed for the two to be clustered, default=80.0', type=int, dest='PERC_IDENTITY_THRESH', default=80.0)
   merge_parser.add_argument('-l', '--length_thresh', help='Minimum amount of overlap two sequences need to have to cluster, default=.8', dest='LENGTH_THRESH', type=float, default=.8)
-  merge_parser.add_argument('-f', '--force', help='Do not allow program to rewrite over old data', dest='force',action='store_false')
+  merge_parser.add_argument('-f', '--force', help='Do not allow program to rewrite over old data', dest='force',action='store_true')
   merge_parser.add_argument('-ex', '--expanded', help='An expanded_clusters.txt file generated from clustering', dest='expanded', type=str)
   merge_parser.add_argument('-wd', '--work', help="Working directory", dest='working', type=str, default='')
 

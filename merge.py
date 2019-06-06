@@ -61,12 +61,12 @@ class mergeApp():
 		temp_line=''
 		x=0
 		y=0
+		test=True
 		for line in expanded_file:
-			if '-----' in line:
-				if temp_line!='':
+			if '--------' in line:
+				if temp_line!='' and line!='\n' and line!='\t':
 					expanded_clusters.append(temp_line)
-					temp_line=''
-					
+					temp_line=''		
 				x+=1
 			else:
 				temp_line+=line.replace('\n','')+'\t'
@@ -77,8 +77,8 @@ class mergeApp():
 		x=0
 		seq_cluster=list(SeqIO.parse(clusters, "fasta"))
 
-		#print len(seq_cluster)
-
+		#print(len(seq_cluster))
+		print(expanded_clusters[0])
 		updated_expanded_clusters=[]
 		temp_string=''
 		while x <len(expanded_clusters):
@@ -90,7 +90,8 @@ class mergeApp():
 			updated_expanded_clusters.append(temp_string)
 			temp_string=''
 			x+=1
-
+		print(len(updated_expanded_clusters))
+		print(updated_expanded_clusters[5])
 		#z=0
 		#for x in updated_expanded_clusters:
 		#	z+=x.count('cluster')
@@ -115,11 +116,12 @@ class mergeApp():
 		for line in raw_infile:
 			if '>' in line:
 				not_merged.append(line[1:].replace('\n',''))
-		
+		print([not_merged[0]],len(not_merged))
 		test=True
 		test2=True
 		merged=[]
 		output_file=[]
+
 		for line in lines:
 			tabs=line.split('\t')
 			q_score =abs((float(tabs[5]) - float(tabs[4]))/float(tabs[8])) #covereage calculated by q_score/s_score ratio
@@ -160,10 +162,9 @@ class mergeApp():
 						print(tabs[0])
 				output_file.append(tabs[0]+'\t'+tabs[1]+'\t'+tabs[2]+'\t'+tabs[3]+'\t'+str(q_score)+'\t'+str(s_score)+'\n')
 
-		#print len(not_merged), len(merged)
-		#print [merged[2:4]]
+		print (len(not_merged), len(merged),'\n',output_file[0])
+		print ([merged[2:4]])
 		
-
 		edited_merge=[]
 		x=0
 
@@ -249,7 +250,7 @@ class mergeApp():
 			if seq.id not in merged:
 				new_header_list.append('>'+str(seq.id)+'\n'+str(seq.seq)+'\n')
 		'''
-
+		#print(len(not_merged))
 		if len(not_merged)>0:
 			edited_merge.append("Number of sequences not merged\t"+str(len(not_merged)))
 			print_not_merged=True
