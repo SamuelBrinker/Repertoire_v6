@@ -211,10 +211,10 @@ class mimp_finderApp():
 				for line in combined_elements:
 					if ">" in line:
 						try:
-							data=''.join(line.split('[')[1].split(':')[:-1])+'\t'+model.split('.fasta')[0]+'\tmimp\t'+str(int(line.split(":")[-1].split('_')[0]))+'\t'+ str(int(line.split(":")[-1].split('_')[1].split(' ')[0]))+'\t.\t0\t;'+'\n'
+							data=''.join(line.split('[')[1].split(':')[:-1])+'\t'+model.split('.fasta')[0]+'\tmimp\t'+str(int(line.split(":")[-1].split('_')[0]))+'\t'+ str(int(line.split(":")[-1].split('_')[1].split(' ')[0]))+'\t.\t+\t0\t;'+'\n'
 						except:
 							print(line)
-							data=''.join(line.split('[')[1].split(':')[:-1])+'\t'+model+'\tmimp\t'+str(int(line.split(":")[-1].split('_')[0]))+'\t'+ str(int(line.split(":")[-1].split('_')[1].split(' ')[0]))+'\t.\t0\t;'+'\n'
+							data=''.join(line.split('[')[1].split(':')[:-1])+'\t'+model+'\tmimp\t'+str(int(line.split(":")[-1].split('_')[0]))+'\t'+ str(int(line.split(":")[-1].split('_')[1].split(' ')[0]))+'\t.\t+\t0\t;'+'\n'
 
 						gff.append(data)
 				with open(os.getcwd()+"/tirmite_mimps/all_elements_"+model.split('.fasta')[0]+".gff","w") as file:
